@@ -1,5 +1,6 @@
 import json
-from lsa_module import *
+from lib.lsa_module import *
+from lib.svd_module import *
 from pathlib import Path
 
 # Configuration
@@ -41,7 +42,7 @@ A = compute_tfidf(TF, IDF)              # TF-IDF matrix (kata × buku)
 U_k, sigmas, V_k = svd_truncated(A, K)  # A =  U_k @ Sigma_k @ V_k.T
 
 # Mencari embedding dokumen
-doc_embed = (A.T @ U_k) / sigmas        #  D = V_k @ Sigma_k = A.T @ U_k, D_embed = D @ Sigma_k^-1 = A.T @ U_k / Sigma_k 
+doc_embed = (A.T @ U_k) / sigmas        # D = V_k @ Sigma_k = A.T @ U_k, D_embed = D @ Sigma_k^-1 = A.T @ U_k / Sigma_k 
 
 # Normalisasi aman (menghindari pembagian 0)
 norms = np.linalg.norm(doc_embed, axis=1, keepdims=True)
@@ -58,7 +59,7 @@ while True:
         break
 
     q_vec = build_query_vector(q, vocab, IDF)
-    q_lsa = project_query_to_lsa(q_vec, U_k, sigmas, V_k)
+    q_lsa = project_query_to_lsa(q_vec, U_k, sigmas)
 
     sims = doc_embed @ q_lsa
     idx = sims.argsort()[::-1][:5]
