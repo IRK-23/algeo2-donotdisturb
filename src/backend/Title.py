@@ -1,6 +1,5 @@
 import json
 from lib.lsa_module import *
-from lib.svd_module import *
 from pathlib import Path
 
 # Configuration
@@ -61,8 +60,8 @@ while True:
     q_vec = build_query_vector(q, vocab, IDF)
     q_lsa = project_query_to_lsa(q_vec, U_k, sigmas)
 
-    sims = doc_embed @ q_lsa
-    idx = sims.argsort()[::-1][:5]
+    sims = doc_embed @ q_lsa        # sim = D_embed @ q_lsa (cosinus similarity)
+    idx = sims.argsort()[::-1][:5]  # ambil 5 index teratas
 
     print("\nTop-5 hasil:")
     for i in idx:

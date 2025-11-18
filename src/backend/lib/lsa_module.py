@@ -7,7 +7,7 @@ nltk.download("stopwords")
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from collections import Counter
-from .svd_module import svd_truncated
+from .svd_module import *
 
 # Fungsi pembuat token (membuang stopword, melakukan stemming)
 STOPWORDS = {w.lower() for w in stopwords.words("english")}
@@ -15,7 +15,8 @@ ps = PorterStemmer()
 
 def tokenize(text):
     text = text.lower()
-    tokens = re.findall(r"[a-z]+", text)                    # ambil huruf saja  
+    tokens = re.findall(r"[a-z0-9]+", text)                 # ambil huruf dan angka
+    # tokens = re.findall(r"[a-z]+", text)                  # ambil huruf saja  
     # tokens = [t for t in tokens if t not in STOPWORDS]    # buang stopword (dicomment karena ada judul yang hanya stopword)
     tokens = [ps.stem(t) for t in tokens]                   # stemming
     return tokens
