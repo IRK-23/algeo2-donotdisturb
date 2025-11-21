@@ -1,68 +1,96 @@
 import json
-from lib.lsa_module import *
+import sys
 from pathlib import Path
+from lib.eigen_module import *
+from lib.lsa_module import *
+from lib.svd_module import *
+from lib.tf_idf_module import *
+from lib.token_module import *
 
-# Configuration
-# path file ini: ../src/backend/Title.py
+# === INISIALISASI ===
+# Path file ini: ../src/backend/Title.py
 CURRENT_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = CURRENT_DIR.parent.parent  # naik 2 level ke ALGEO2-DONOTDISTURB
+PROJECT_ROOT = CURRENT_DIR.parent.parent  # Naik 2 level ke ALGEO2-DONOTDISTURB
 
 DATASET_JSON = PROJECT_ROOT / "data" / "mapper.json"
-K = 50                  # dimensi latent k (<= n_books-1), makin besar, makin akurat tapi lambat
-MAX_POWER_ITERS = 1000
-POWER_TOL = 1e-6
 
-# Load JSON
-with open(DATASET_JSON, "r", encoding="utf-8") as f:
-    mapper = json.load(f)
+# Load JSON dengan error handling
+try:
+    with open(DATASET_JSON, "r", encoding="utf-8") as f:
+        mapper = json.load(f)
+except FileNotFoundError:
+    print(f"Error: File {DATASET_JSON} tidak ditemukan. Periksa path.")
+    sys.exit(1)
+except json.JSONDecodeError:
+    print("Error: File JSON tidak valid.")
+    sys.exit(1)
 
-ids = list(mapper.keys())                   # semua id buku
-titles = [mapper[i]["title"] for i in ids]  # semua judul buku
+ids = list(mapper.keys())                   # Semua ID buku
+titles = [mapper[i]["title"] for i in ids]  # Semua judul buku
 n_books = len(titles)
 print(f"Loaded {n_books} titles from {DATASET_JSON}")
 
-# Token tiap title   
-book_tokens = [tokenize(t) for t in titles] # list of list of tokens
+# Token tiap title
+book_tokens = [tokenize(t) for t in titles]  # List of list of tokens
+
+# Cek jika ada token valid
+if not book_tokens or all(len(tokens) == 0 for tokens in book_tokens):
+    print("Error: Tidak ada token valid dari judul. Periksa data atau fungsi tokenize.")
+    sys.exit(1)
 
 # Buat vocab dari semua token
 vocab = build_vocab(book_tokens)
-n_terms = len(vocab)                        # jumlah kata unik
-n_books = len(book_tokens)                  # jumlah buku
+n_terms = len(vocab)  # Jumlah kata unik
+print(f"Vocab size: {n_terms} terms")
 
 # Buat matriks term-document A_counts (kata × buku)
 A_counts = build_term_doc_counts(book_tokens, vocab)
 
-# Mencari TF, IDF, TF-IDF matriks A_counts
+# Hitung TF, IDF, TF-IDF
 TF = compute_tf(A_counts)               # Term Frequency
-IDF = compute_idf(A_counts, n_books)    # Inverse Document Frequency 
+IDF = compute_idf(A_counts)             # Inverse Document Frequency
 A = compute_tfidf(TF, IDF)              # TF-IDF matrix (kata × buku)
+print(f"TF-IDF matrix shape: {A.shape}")
+
+# Tentukan K dinamis untuk SVD (minimal 50, atau setengah dari min dimensi)
+K = min(50, min(n_terms, n_books) // 2)
+if K > min(n_terms, n_books):
+    K = min(n_terms, n_books) - 1  # Pastikan tidak melebihi
+print(f"Using K={K} for SVD")
 
 # Truncated SVD
-U_k, sigmas, V_k = svd_truncated(A, K)  # A =  U_k @ Sigma_k @ V_k.T
+try:
+    U_k, Sigma_k, Vt_k = svd_truncated(A, K)  # A ≈ U_k @ Sigma_k @ Vt_k
+except Exception as e:
+    print(f"Error during SVD: {e}. Periksa matriks A atau nilai K.")
+    sys.exit(1)
 
-# Mencari embedding dokumen
-doc_embed = (A.T @ U_k) / sigmas        # D = V_k @ Sigma_k = A.T @ U_k, D_embed = D @ Sigma_k^-1 = A.T @ U_k / Sigma_k 
+# Hitung embedding dokumen dan normalisasi
+D = doc_embeddings(Vt_k, Sigma_k)
+D_norm = normalize_rows(D)
 
-# Normalisasi aman (menghindari pembagian 0)
-norms = np.linalg.norm(doc_embed, axis=1, keepdims=True)
-norms[norms == 0] = 1e-10
+print("LSA model ready.")
 
-doc_embed /= norms # normalisasi tiap baris, d_normalisasi = d / ||d||
-
-print("LSA model ready.")       # model siap digunakan (placeholder)
-
+# === TES PROGRAM ===
 # Search loop
 while True:
     q = input("\nMasukkan judul (exit untuk keluar): ").strip()
-    if q == "exit":
+    if q.lower() == "exit":
         break
-
+    if not q:
+        print("Query kosong, coba lagi.")
+        continue
+    
+    # Bangun vektor query
     q_vec = build_query_vector(q, vocab, IDF)
-    q_lsa = project_query_to_lsa(q_vec, U_k, sigmas)
-
-    sims = doc_embed @ q_lsa        # sim = D_embed @ q_lsa (cosinus similarity)
-    idx = sims.argsort()[::-1][:5]  # ambil 5 index teratas
-
+    q_lsa = project_query_to_lsa(q_vec, U_k, Sigma_k)
+    
+    # Ambil top-k hasil langsung (tanpa redundansi)
+    top_idx, top_sims = top_k_similar_docs(q_lsa, D_norm, topn=5)
+    
     print("\nTop-5 hasil:")
-    for i in idx:
-        print(f"{sims[i]:.4f} | {ids[i]} | {titles[i]}")
+    if len(top_idx) == 0:
+        print("Tidak ada hasil yang relevan.")
+    else:
+        for idx, sim in zip(top_idx, top_sims):
+            print(f"{sim:.4f} | {ids[idx]} | {titles[idx]}")
