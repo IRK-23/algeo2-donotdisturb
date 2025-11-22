@@ -1,0 +1,8 @@
+{
+  "k": 100,
+  "n_samples": 523,
+  "image_width": 300,
+  "image_height": 200,
+  "training_date": "2024-11-22",
+  "description": "PCA model for book cover similarity"
+}
