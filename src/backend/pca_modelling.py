@@ -10,123 +10,133 @@ import pickle
 import pandas as pd
 
 # path ke root project berdasarkan lokasi file ini
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-DATA_DIR = os.path.join(ROOT_DIR, "data", "covers")
+def create_pca_model():
+    ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    DATA_DIR = os.path.join(ROOT_DIR, "data", "covers")
 
-# Load data gambar
-images, filenames = pca.load_images_from_folder(DATA_DIR)
+    # Load data gambar
+    images, filenames = pca.load_images_from_folder(DATA_DIR)
 
-# ----------------------------- untuk debugging doang ----------------------
-# print("Data gambar 1 ") 
-# print(images[0])
+    # ----------------------------- untuk debugging doang ----------------------
+    # print("Data gambar 1 ") 
+    # print(images[0])
 
-# ---------- show image ---------
-# img = images[0]
+    # ---------- show image ---------
+    # img = images[0]
+        
+    # Menampilkan gambar dengan matplotlib
+    # plt.imshow(img)
+    # plt.axis('off')  # Menghilangkan axis untuk tampilan yang lebih bersih
+    # plt.show()
+
+    # ---------------------------------------------------
+
+    printf("MEMULAI PCA MODELLING")
+
     
-# Menampilkan gambar dengan matplotlib
-# plt.imshow(img)
-# plt.axis('off')  # Menghilangkan axis untuk tampilan yang lebih bersih
-# plt.show()
+    # Ambil jumlah data gambar
+    jumlah = pca.count_images_file(DATA_DIR)
 
-# ---------------------------------------------------
+    # Convert file gambar menjadi vektor kolom
+    print("Matrix pixel RGB to vector column")
 
+    column_vector_data = np.zeros((jumlah, 200*300), dtype=np.float32) 
 
-# Ambil jumlah data gambar
-jumlah = pca.count_images_file(DATA_DIR)
+    for i in range(jumlah): 
+        # Convert gambar menjadi matriks RGB
+        matrix_rgb = pca.image_to_matrix(images[i]) 
 
-# Convert file gambar menjadi vektor kolom
-print("Matrix pixel RGB to vector column")
+        # Convert matriks pixel RGB ke grayscale
+        matrix_grayscale = pca.convert_to_grayscale(matrix_rgb) 
 
-column_vector_data = np.zeros((jumlah, 200*300), dtype=np.float32) 
+        # Jadikan matriks kolom
+        vector_column = pca.matrix_to_column_vector(matrix_grayscale) 
 
-for i in range(jumlah): 
-    # Convert gambar menjadi matriks RGB
-    matrix_rgb = pca.image_to_matrix(images[i]) 
+        # Simpan ke array
+        column_vector_data[i] = vector_column
 
-    # Convert matriks pixel RGB ke grayscale
-    matrix_grayscale = pca.convert_to_grayscale(matrix_rgb) 
-
-    # Jadikan matriks kolom
-    vector_column = pca.matrix_to_column_vector(matrix_grayscale) 
-
-    # Simpan ke array
-    column_vector_data[i] = vector_column
-
-print("Vektor kolom done")
+    print("Vektor kolom done")
 
 
-# Normalisasi
-print("Normalisasi vektor kolom")
-# Hitung average
-average = pca.hitung_rata2(column_vector_data)
+    # Normalisasi
+    print("Normalisasi vektor kolom")
+    # Hitung average
+    average = pca.hitung_rata2(column_vector_data)
 
- # Normalisasi vektor kolom gambar
-column_vector_data_normalized = np.zeros((jumlah, 200*300)) 
+    # Normalisasi vektor kolom gambar
+    column_vector_data_normalized = np.zeros((jumlah, 200*300)) 
 
-for i in range(jumlah):
-    column_vector_data_normalized[i] = pca.normalization(column_vector_data[i], average)
-    # print(f"vektor normalisasi (x') ke-{i} : \n {column_vector_data_normalized[i]}")
+    for i in range(jumlah):
+        column_vector_data_normalized[i] = pca.normalization(column_vector_data[i], average)
+        # print(f"vektor normalisasi (x') ke-{i} : \n {column_vector_data_normalized[i]}")
 
-print("Normalisasi done")
+    print("Normalisasi done")
 
 
-# Nilai K untuk k eigen teratas dengan rasio 95% dari total variansi
-print("--------- PCA ----------------")
-k = 100 # ambil k yang lebih akurat,  sekitar 95% data
+    # Nilai K untuk k eigen teratas dengan rasio 95% dari total variansi
+    print("--------- PCA ----------------")
+    k = 100 # ambil k yang lebih akurat,  sekitar 95% data
 
-# INI DIA YANG MASIH AKAN DIPERBAIKI UNTUK SVD manual
+    # INI DIA YANG MASIH AKAN DIPERBAIKI UNTUK SVD manual
 
-# Use randomized SVD for efficiency
-# from sklearn.utils.extmath import randomized_svd
+    # Use randomized SVD for efficiency
+    # from sklearn.utils.extmath import randomized_svd
 
-# X = U @ S @ V.T
-# U, S, Vt = randomized_svd(
-#     column_vector_data_normalized,
-#     n_components=k,
-#     random_state=42
-# )
+    # X = U @ S @ V.T
+    # U, S, Vt = randomized_svd(
+    #     column_vector_data_normalized,
+    #     n_components=k,
+    #     random_state=42
+    # )
 
-U, sigma, Vt = svd.svd_truncated(column_vector_data_normalized, k)
+    U, sigma, Vt = svd.svd_truncated(column_vector_data_normalized, k)
 
-# ----------------------------------
+    # ----------------------------------
 
-Uk = Vt.T
+    Uk = Vt.T
 
-# Normalisasi komponen
-for i in range(k):
-    norm = np.linalg.norm(Uk[:, i])
-    Uk[:, i] = Uk[:, i] / norm
-    
-print("PCA done")
+    # Normalisasi komponen
+    for i in range(k):
+        norm = np.linalg.norm(Uk[:, i])
+        Uk[:, i] = Uk[:, i] / norm
+        
+    print("PCA done")
 
-# vektor koefisien data gambar (ci)
-print("Vektor Koefisien ci")
-coef_vector_data = column_vector_data_normalized @ Uk
-print("koefisien vektor ci done")
+    # vektor koefisien data gambar (ci)
+    print("Vektor Koefisien ci")
+    coef_vector_data = column_vector_data_normalized @ Uk
+    print("koefisien vektor ci done")
 
 
 
-# SAVE MODEL
+    # SAVE MODEL
 
-# Metadata
-metadata = {
-    'k': k,
-    'n_samples': jumlah,
-    'image_width': 300,
-    'image_height': 200,
-    'training_date': '2024-11-22',
-    'description': 'PCA model for book cover similarity'
-}
+    model_dir = 'backend/model/pca_model'
 
-# Save model
-pca.save_pca_model(
-    average, 
-    Uk, 
-    coef_vector_data, 
-    filenames,  # ✅ Pass filenames!
-    metadata, 
-    save_dir='backend/model/pca_model'
-)
+    # Cek apakah folder belum ada
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)   # Buat folder
+        print(f"Folder '{save_dir}' belum ada, membuat folder baru...")
+
+    # Metadata
+    metadata = {
+        'k': k,
+        'n_samples': jumlah,
+        'image_width': 300,
+        'image_height': 200,
+        'training_date': '2024-11-22',
+        'description': 'PCA model for book cover similarity'
+    }
+
+    # Save model
+    pca.save_pca_model(
+        average, 
+        Uk, 
+        coef_vector_data, 
+        filenames,  # ✅ Pass filenames!
+        metadata, 
+        save_dir=model_dir
+    )
 
 
 

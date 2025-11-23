@@ -7,14 +7,23 @@ import os
 import json
 import pickle
 
+model_dir = "backend/model/pca_model"
+
+if not os.path.exists(model_dir):
+    # Folder tidak ditemukan
+    print("Belum ada model")
+    create_pca_model()
+    
+# pENCARIAN COVER
+
 # Load model
 average, Uk, coef_vector_data, filenames, metadata = pca.load_pca_model(
     save_dir="backend/model/pca_model"
 )
 
 # Process query
-image_path = "../data/query/16.jpg"
-image_query, cq = olah_query.process_query_image(image_path, average, Uk)
+query_folder_path = "../data/query"
+image_query, cq = olah_query.process_query_image(query_folder_path, average, Uk)
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DATA_DIR = os.path.join(ROOT_DIR, "data", "covers")

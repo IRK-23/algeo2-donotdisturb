@@ -8,13 +8,31 @@ import os
 import json
 import pickle
 
-def process_query_image(image_path, average, Uk):
+def clean_query_folder(folder):
+    for f in os.listdir(folder):
+        file_path = os.path.join(folder, f)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
 
-    # print("gambar query dimasukan")
-    path_query = image_path
-    # "../data/query/16.jpg"
+def process_query_image(query_folder_path, average, Uk):
 
-    image_query = Image.open(path_query)
+    # Cari file JPG / JPEG di folder
+    valid_ext = (".jpg", ".jpeg", ".png")
+    query_files = [f for f in os.listdir(query_folder_path)
+                   if f.lower().endswith(valid_ext)]
+
+    if len(query_files) == 0:
+        raise FileNotFoundError("Tidak ada file JPG/PNG di folder query.")
+
+    if len(query_files) > 1:
+        print("Peringatan: terdapat lebih dari 1 file. Mengambil file pertama.")
+
+
+    # Ambil path file gambar pertama
+    query_image_path = os.path.join(query_folder_path, query_files[0])
+
+    # Load image
+    image_query = Image.open(query_image_path)
 
     # Tampilkan gambar
     # # Visualize
