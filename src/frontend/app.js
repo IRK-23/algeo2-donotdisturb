@@ -35,7 +35,7 @@ async function search() {
 
     let html = "";
     for (const r of data.results) {
-      html += `<div class="result"><span class="score">${r.score.toFixed(4)}</span> ${r.id} | ${r.title}</div>`;
+      html += `<div class="result"><span class="score">Score : ${r.score.toFixed(4)}</span> | id : ${r.id} | ${r.title}</div>`;
     }
     resultsDiv.innerHTML = html;
   } catch (err) {

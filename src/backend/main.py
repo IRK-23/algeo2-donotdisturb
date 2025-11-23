@@ -1,13 +1,18 @@
-# src/backend/main.py
 from pathlib import Path
 import sys
 import json
-from flask import Flask, request, jsonify, send_from_directory, abort
 import numpy as np
+from flask import Flask, request, jsonify, send_from_directory, abort
 
-#  Insert lib folder into sys.path
+#  Setup base paths
 BASE = Path(__file__).resolve().parent           # src/backend
 LIB_DIR = BASE / "lib"
+CACHE_FILE = BASE / "title_cache.npz"
+
+#   Setup Latency
+K = 50 # Makin besar, makin akurat, tetapi jangan sampai overfitting dan bisa kelamaaan
+
+
 if str(LIB_DIR) not in sys.path:
     sys.path.insert(0, str(LIB_DIR))
 
@@ -22,6 +27,7 @@ from lib.lsa_module import (
     normalize_rows,
     cosine_similarities_for,
 )
+from cache import save_lsa_cache, load_lsa_cache
 
 #  Locate mapper.json
 def find_mapper_json():
@@ -51,22 +57,31 @@ with open(MAPPER, "r", encoding="utf-8") as f:
 ids = list(mapper.keys())
 titles = [mapper[i]["title"] for i in ids]
 
-#  Build TF-IDF matrix (terms × docs)
-book_tokens = [tokenize(t) for t in titles]
-vocab = build_vocab(book_tokens)
-A_counts = build_term_doc_counts(book_tokens, vocab)
+# Load cache file
+if CACHE_FILE.exists():
+    print("Loading cached model...")
+    (vocab, A_counts, TF, IDF, A, U_k, Sigma_k, Vt_k, D_norm) = load_lsa_cache(CACHE_FILE)
+else:
+    print("Building model from scratch...")
+    #  Build TF-IDF matrix (terms × docs)
+    book_tokens = [tokenize(t) for t in titles]
+    vocab = build_vocab(book_tokens)
+    A_counts = build_term_doc_counts(book_tokens, vocab)
 
-TF  = compute_tf(A_counts)
-IDF = compute_idf(A_counts)
-A   = compute_tfidf(TF, IDF)
+    TF  = compute_tf(A_counts)
+    IDF = compute_idf(A_counts)
+    A   = compute_tfidf(TF, IDF)
 
-#  Truncated SVD using your custom power-iteration SVD
-K = 50 # Makin besar, makin akurat, tetapi jangan sampai overfitting dan bisa kelamaaan
-U_k, Sigma_k, Vt_k = svd_truncated(A, K)
+    #  Truncated SVD using your custom power-iteration SVD
+    U_k, Sigma_k, Vt_k = svd_truncated(A, K)
 
-#  Build normalized document embeddings (docs × k)
-D = doc_embeddings(Vt_k, Sigma_k)
-D_norm = normalize_rows(D)
+    #  Build normalized document embeddings (docs × k)
+    D = doc_embeddings(Vt_k, Sigma_k)
+    D_norm = normalize_rows(D)
+
+    #   Save cache
+    save_lsa_cache(CACHE_FILE, vocab, A_counts, TF, IDF,
+                   A, U_k, Sigma_k, Vt_k, D_norm)
 
 print("LSA model ready.")
 print(f"Matrix shape A: {A.shape}")
@@ -80,12 +95,12 @@ FRONTEND_DIR = BASE.parent / "frontend"   # folder: src/frontend
 
 app = Flask(__name__, static_folder=str(FRONTEND_DIR), static_url_path="")
 
-# Serve index.html
+#   Serve index.html
 @app.route("/", methods=["GET"])
 def index():
     return send_from_directory(str(FRONTEND_DIR), "index.html")
 
-# Serve static files (JS/CSS)
+#   Serve static files (JS/CSS)
 @app.route("/<path:filename>")
 def frontend_files(filename):
     file_path = FRONTEND_DIR / filename
@@ -103,12 +118,11 @@ def api_search():
     if query == "":
         return jsonify({"error": "query is empty"}), 400
 
-    # Build query vector in TF-IDF space
+    # Convert query to LSA
     q_vec = build_query_vector(query, vocab, IDF)
-
-    # IMPORTANT: orientation follows your Title.py (that works)
     q_lsa = project_query_to_lsa(q_vec, U_k, Sigma_k)
 
+    # Create similarity
     sims = cosine_similarities_for(q_lsa, D_norm)
 
     # Rank docs
