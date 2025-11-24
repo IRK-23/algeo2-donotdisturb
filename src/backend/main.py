@@ -7,7 +7,6 @@ from flask import Flask, request, jsonify, send_from_directory, abort
 BASE = Path(__file__).resolve().parent           # src/backend
 LIB_DIR = BASE / "lib"
 
-from lib.lsa_module import (
 # if str(LIB_DIR) not in sys.path:
 #     sys.path.insert(0, str(LIB_DIR))
 
