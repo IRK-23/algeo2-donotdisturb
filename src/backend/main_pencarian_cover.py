@@ -1,6 +1,6 @@
-from .module import pca
-from .model import olah_query
-import pca_modelling
+from backend import pca_modelling
+from backend.module import pca
+from backend.model import olah_query
 import numpy as np # Library untuk operasi matriks sederhana 
 from PIL import Image # Library pengolahan file gambar
 import matplotlib.pyplot as plt
@@ -8,30 +8,30 @@ import os
 import json
 import pickle
 
-model_dir = "backend/model/pca_model"
+# Root project = folder yang berisi "src" dan "data"
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-if not os.path.exists(model_dir):
+DATA_DIR = os.path.join(ROOT_DIR, "data")
+QUERY_DIR = os.path.join(DATA_DIR, "query")
+COVERS_DIR = os.path.join(DATA_DIR, "covers")
+MODEL_DIR = os.path.join(ROOT_DIR, "src", "backend", "model", "pca_model")
+
+if not os.path.exists(MODEL_DIR):
     # Folder tidak ditemukan
     print("Belum ada model")
     pca_modelling.create_pca_model()
-    
-# pENCARIAN COVER
 
-# Load model
+# Load model pca
 average, Uk, coef_vector_data, filenames, metadata = pca.load_pca_model(
-    save_dir="backend/model/pca_model"
-)
+    save_dir=MODEL_DIR
+) 
 
 # Process query
-query_folder_path = "../data/query"
-image_query, cq = olah_query.process_query_image(query_folder_path, average, Uk)
-
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-DATA_DIR = os.path.join(ROOT_DIR, "data", "covers")
+image_query, cq = olah_query.process_query_image(QUERY_DIR, average, Uk)
 
 images = []
 for filename in filenames:
-    img_path = os.path.join(DATA_DIR, filename)
+    img_path = os.path.join(COVERS_DIR, filename)
     img = Image.open(img_path)
     images.append(img)
 
