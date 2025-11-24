@@ -31,7 +31,7 @@ def create_pca_model():
 
     # ---------------------------------------------------
 
-    printf("MEMULAI PCA MODELLING")
+    print("MEMULAI PCA MODELLING")
 
     
     # Ambil jumlah data gambar
@@ -114,9 +114,9 @@ def create_pca_model():
     model_dir = 'backend/model/pca_model'
 
     # Cek apakah folder belum ada
-    if not os.path.exists(save_dir):
-        os.makedirs(save_dir)   # Buat folder
-        print(f"Folder '{save_dir}' belum ada, membuat folder baru...")
+    if not os.path.exists(model_dir):
+        os.makedirs(model_dir)   # Buat folder
+        print(f"Folder '{model_dir}' belum ada, membuat folder baru...")
 
     # Metadata
     metadata = {

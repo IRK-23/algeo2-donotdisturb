@@ -1,5 +1,6 @@
 from .module import pca
 from .model import olah_query
+import pca_modelling
 import numpy as np # Library untuk operasi matriks sederhana 
 from PIL import Image # Library pengolahan file gambar
 import matplotlib.pyplot as plt
@@ -12,7 +13,7 @@ model_dir = "backend/model/pca_model"
 if not os.path.exists(model_dir):
     # Folder tidak ditemukan
     print("Belum ada model")
-    create_pca_model()
+    pca_modelling.create_pca_model()
     
 # pENCARIAN COVER
 
