@@ -1,0 +1,142 @@
+
+// const BOOKS_PER_PAGE = 10;
+
+// // Contoh data buku yang disimulasikan
+// const simulatedBooks = [
+//   { id: 1, title: "The Great Gatsby", author: "F. Scott Fitzgerald", cover: "https://picsum.photos/200/300?random=1" },
+//   { id: 2, title: "1984", author: "George Orwell", cover: "https://picsum.photos/200/300?random=2" },
+//   { id: 3, title: "To Kill a Mockingbird", author: "Harper Lee", cover: "https://picsum.photos/200/300?random=3" },
+//   // ... tambahkan lebih banyak buku untuk tampilan awal
+// ];
+
+// // ----------------------------------------------------
+// // FUNGSI PENCARIAN JUDUL (untuk Search Bar di Header)
+// // ----------------------------------------------------
+// export const searchBooksByTitle = async (query) => {
+//   // Ganti URL ini dengan endpoint Python Anda
+//   // const response = await fetch(`/api/search/title?q=${query}`);
+//   // const data = await response.json();
+  
+//   return new Promise(resolve => {
+//     setTimeout(() => {
+//       console.log(`Pencarian judul: ${query}`);
+//       const results = simulatedBooks.filter(book => 
+//         book.title.toLowerCase().includes(query.toLowerCase())
+//       );
+//       resolve({
+//             books: books.length > 0 ? books : simulatedBooks.slice(0, BOOKS_PER_PAGE),
+//             totalPages: Math.ceil(simulatedBooks.length / BOOKS_PER_PAGE) 
+//       });
+//     }, 500); // Simulasi loading 500ms
+//   });
+// };
+
+// // ----------------------------------------------------
+// // FUNGSI PENCARIAN COVER (untuk Modal Upload Gambar)
+// // ----------------------------------------------------
+// export const searchBooksByCover = async (imageFile) => {
+//   const formData = new FormData();
+//   formData.append('cover_image', imageFile);
+
+//   // Ganti URL ini dengan endpoint Python yang menerima gambar
+//   // const response = await fetch('/api/search/cover', {
+//   //   method: 'POST',
+//   //   body: formData,
+//   // });
+//   // const data = await response.json();
+
+//   return new Promise(resolve => {
+//     setTimeout(() => {
+//       console.log(`Pencarian berdasarkan Cover: ${imageFile.name}`);
+//       // Asumsi hasil pencarian dari cover juga mengembalikan array buku
+//       resolve(simulatedBooks.slice(0, 2)); // Contoh 2 hasil
+//     }, 1000); 
+//   });
+// };
+
+// // ----------------------------------------------------
+// // FUNGSI DEFAULT (untuk tampilan awal dan pagination)
+// // ----------------------------------------------------
+// export const fetchAllBooks = async (page = 1) => {
+//     return new Promise(resolve => {
+//       setTimeout(() => {
+//         const startIndex = (page - 1) * 6;
+//         const endIndex = startIndex + 6;
+//         const books = simulatedBooks.slice(startIndex, endIndex);
+
+//         resolve({
+//             books: books.length > 0 ? books : simulatedBooks.slice(0, 6),
+//             totalPages: Math.ceil(simulatedBooks.length / 6) // Asumsi 6 buku per halaman
+//         });
+//       }, 500);
+//     });
+// };
+
+// src/frontend/api/bookApi.js
+
+const BOOKS_PER_PAGE = 10;
+
+// ✅ CONTOH DATA DENGAN 11 BUKU (Akan menghasilkan 2 halaman)
+const simulatedBooks = [
+  { id: 1, title: "The Great Gatsby", author: "F. Scott Fitzgerald", cover: "https://picsum.photos/200/300?random=1" },
+  { id: 2, title: "1984", author: "George Orwell", cover: "https://picsum.photos/200/300?random=2" },
+  { id: 3, title: "To Kill a Mockingbird", author: "Harper Lee", cover: "https://picsum.photos/200/300?random=3" },
+  { id: 4, title: "Harry Potter and the Sorcerer's Stone", author: "J.K. Rowling", cover: "https://picsum.photos/200/300?random=4" },
+  { id: 5, title: "The Hobbit", author: "J.R.R. Tolkien", cover: "https://picsum.photos/200/300?random=5" },
+  { id: 6, title: "Moby Dick", author: "Herman Melville", cover: "https://picsum.photos/200/300?random=6" },
+  { id: 7, title: "War and Peace", author: "Leo Tolstoy", cover: "https://picsum.photos/200/300?random=7" },
+  { id: 8, title: "The Odyssey", author: "Homer", cover: "https://picsum.photos/200/300?random=8" },
+  { id: 9, title: "Jane Eyre", author: "Charlotte Bronte", cover: "https://picsum.photos/200/300?random=9" },
+  { id: 10, title: "Wuthering Heights", author: "Emily Bronte", cover: "https://picsum.photos/200/300?random=10" },
+  { id: 11, title: "The Little Prince", author: "Antoine de Saint-Exupéry", cover: "https://picsum.photos/200/300?random=11" },
+];
+
+// ----------------------------------------------------
+// FUNGSI PENCARIAN JUDUL (Diperbaiki)
+// ----------------------------------------------------
+export const searchBooksByTitle = async (query) => {
+  
+  return new Promise(resolve => {
+    setTimeout(() => {
+      console.log(`Pencarian judul: ${query}`);
+      const results = simulatedBooks.filter(book => 
+        book.title.toLowerCase().includes(query.toLowerCase())
+      );
+      // ✅ Hanya mengembalikan daftar hasil, tidak perlu pagination di sini
+      resolve(results); 
+    }, 500); 
+  });
+};
+
+// ----------------------------------------------------
+// FUNGSI PENCARIAN COVER (Dibiarkan)
+// ----------------------------------------------------
+export const searchBooksByCover = async (imageFile) => {
+  // ... (Logika fetch cover)
+  return new Promise(resolve => {
+    setTimeout(() => {
+      console.log(`Pencarian berdasarkan Cover: ${imageFile.name}`);
+      resolve(simulatedBooks.slice(0, 2)); 
+    }, 1000); 
+  });
+};
+
+// ----------------------------------------------------
+// FUNGSI DEFAULT (Diperbarui untuk 10 buku per halaman)
+// ----------------------------------------------------
+export const fetchAllBooks = async (page = 1) => {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        // ✅ Menggunakan BOOKS_PER_PAGE yang baru (10)
+        const startIndex = (page - 1) * BOOKS_PER_PAGE; 
+        const endIndex = startIndex + BOOKS_PER_PAGE;
+        const books = simulatedBooks.slice(startIndex, endIndex);
+
+        resolve({
+            books: books, // Hanya kirim buku yang di-slice
+            // ✅ Perhitungan total halaman menggunakan 10 buku/halaman: ceil(11/10) = 2
+            totalPages: Math.ceil(simulatedBooks.length / BOOKS_PER_PAGE) 
+        });
+      }, 500);
+    });
+};
