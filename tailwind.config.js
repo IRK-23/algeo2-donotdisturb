@@ -2,11 +2,11 @@
 module.exports = {
   content: [
     "./index.html",
-    "./src/frontend/**/*.{js,ts,jsx,tsx}", // Mencakup semua file di src
+    "./src/frontend/**/*.{js,ts,jsx,tsx}"
   ],
-  darkMode: 'class', // Mengaktifkan dark mode berdasarkan class 'dark'
+  darkMode: 'class',
   theme: {
     extend: {},
   },
   plugins: [],
-}
+};

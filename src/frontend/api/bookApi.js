@@ -77,19 +77,19 @@
 const BOOKS_PER_PAGE = 10;
 
 // ✅ CONTOH DATA DENGAN 11 BUKU (Akan menghasilkan 2 halaman)
-const simulatedBooks = [
-  { id: 1, title: "The Great Gatsby", author: "F. Scott Fitzgerald", cover: "https://picsum.photos/200/300?random=1" },
-  { id: 2, title: "1984", author: "George Orwell", cover: "https://picsum.photos/200/300?random=2" },
-  { id: 3, title: "To Kill a Mockingbird", author: "Harper Lee", cover: "https://picsum.photos/200/300?random=3" },
-  { id: 4, title: "Harry Potter and the Sorcerer's Stone", author: "J.K. Rowling", cover: "https://picsum.photos/200/300?random=4" },
-  { id: 5, title: "The Hobbit", author: "J.R.R. Tolkien", cover: "https://picsum.photos/200/300?random=5" },
-  { id: 6, title: "Moby Dick", author: "Herman Melville", cover: "https://picsum.photos/200/300?random=6" },
-  { id: 7, title: "War and Peace", author: "Leo Tolstoy", cover: "https://picsum.photos/200/300?random=7" },
-  { id: 8, title: "The Odyssey", author: "Homer", cover: "https://picsum.photos/200/300?random=8" },
-  { id: 9, title: "Jane Eyre", author: "Charlotte Bronte", cover: "https://picsum.photos/200/300?random=9" },
-  { id: 10, title: "Wuthering Heights", author: "Emily Bronte", cover: "https://picsum.photos/200/300?random=10" },
-  { id: 11, title: "The Little Prince", author: "Antoine de Saint-Exupéry", cover: "https://picsum.photos/200/300?random=11" },
-];
+// const simulatedBooks = [
+//   { id: 1, title: "The Great Gatsby", author: "F. Scott Fitzgerald", cover: "https://picsum.photos/200/300?random=1" },
+//   { id: 2, title: "1984", author: "George Orwell", cover: "https://picsum.photos/200/300?random=2" },
+//   { id: 3, title: "To Kill a Mockingbird", author: "Harper Lee", cover: "https://picsum.photos/200/300?random=3" },
+//   { id: 4, title: "Harry Potter and the Sorcerer's Stone", author: "J.K. Rowling", cover: "https://picsum.photos/200/300?random=4" },
+//   { id: 5, title: "The Hobbit", author: "J.R.R. Tolkien", cover: "https://picsum.photos/200/300?random=5" },
+//   { id: 6, title: "Moby Dick", author: "Herman Melville", cover: "https://picsum.photos/200/300?random=6" },
+//   { id: 7, title: "War and Peace", author: "Leo Tolstoy", cover: "https://picsum.photos/200/300?random=7" },
+//   { id: 8, title: "The Odyssey", author: "Homer", cover: "https://picsum.photos/200/300?random=8" },
+//   { id: 9, title: "Jane Eyre", author: "Charlotte Bronte", cover: "https://picsum.photos/200/300?random=9" },
+//   { id: 10, title: "Wuthering Heights", author: "Emily Bronte", cover: "https://picsum.photos/200/300?random=10" },
+//   { id: 11, title: "The Little Prince", author: "Antoine de Saint-Exupéry", cover: "https://picsum.photos/200/300?random=11" },
+// ];
 
 // ----------------------------------------------------
 // FUNGSI PENCARIAN JUDUL (Diperbaiki)
@@ -140,3 +140,86 @@ export const fetchAllBooks = async (page = 1) => {
       }, 500);
     });
 };
+
+
+// src/api/bookApi.js
+
+export const simulatedBooks = [
+  {
+    id: 1,
+    title: "They Both Die at the End",
+    author: "Adam Silvera",
+    cover:
+      "https://picsum.photos/200/300?random=1",
+  },
+  {
+    id: 2,
+    title: "The Midnight Library",
+    author: "Matt Haig",
+    cover:
+      "https://picsum.photos/200/300?random=2",
+  },
+  {
+    id: 3,
+    title: "Atomic Habits",
+    author: "James Clear",
+    cover:
+      "https://picsum.photos/200/300?random=3",
+  },
+  {
+    id: 4,
+    title: "The Alchemist",
+    author: "Paulo Coelho",
+    cover:
+      "https://picsum.photos/200/300?random=4",
+  },
+  {
+    id: 5,
+    title: "The Subtle Art of Not Giving a F*ck",
+    author: "Mark Manson",
+    cover:
+      "https://picsum.photos/200/300?random=5",
+  },
+  {
+    id: 6,
+    title: "Norwegian Wood",
+    author: "Haruki Murakami",
+    cover:
+      "https://picsum.photos/200/300?random=6",
+  },
+  {
+    id: 7,
+    title: "The Famous Five: Five on a Treasure Island",
+    author: "Enid Blyton",
+    cover:
+      "https://picsum.photos/200/300?random=7",
+  },
+  {
+    id: 8,
+    title: "To Kill a Mockingbird",
+    author: "Harper Lee",
+    cover:
+      "https://picsum.photos/200/300?random=8",
+  },
+  {
+    id: 9,
+    title: "1984",
+    author: "George Orwell",
+    cover:
+      "https://picsum.photos/200/300?random=9",
+  },
+  {
+    id: 10,
+    title: "The Silent Patient",
+    author: "Alex Michaelides",
+    cover:
+      "https://picsum.photos/200/300?random=10",
+  },
+  {
+    id: 11,
+    title: "The Little Prince",
+    author: "Antoine de Saint-Exupéry",
+    cover:
+      "https://picsum.photos/200/300?random=11",
+  },
+];

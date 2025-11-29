@@ -20,7 +20,7 @@ const Header = () => {
   }, [isDarkMode]);
 
   return (
-    <header className="bg-white/80 dark:bg-gray-900/80 
+    <header className="g-white/80 dark:bg-gray-900/80 
                       backdrop-blur-xl
                       border-b border-gray-200 dark:border-gray-700 
                       shadow-[0_4px_15px_rgba(0,0,0,0.08)] 

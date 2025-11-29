@@ -1,10 +1,17 @@
+// src/App.jsx
 import React from 'react';
-import Home from './pages/Home'; // Impor komponen Home Anda
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import BookDetail from './pages/BookDetail';
 
 function App() {
   return (
-    // Hanya merender komponen Home
-    <Home /> 
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/book/:id" element={<BookDetail />} />
+      </Routes>
+    </Router>
   );
 }
 
