@@ -65,7 +65,7 @@ const SearchByContentModal = ({ isOpen, onClose, onSearchComplete }) => {
             {/* Opsi 2: Upload File */}
             <div className="p-10 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-center bg-gray-50 dark:bg-gray-700 relative">
                 <span className="text-4xl text-gray-400">☁️</span> {/* Ikon Cloud/Upload */}
-                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                <p className="mt-2 text-sm text-indigo-600 dark:text-gray-400">
                     Upload File: .txt
                 </p>
                 <input
@@ -88,7 +88,7 @@ const SearchByContentModal = ({ isOpen, onClose, onSearchComplete }) => {
             onClick={handleSubmit}
             disabled={isSearchDisabled}
             className={`px-6 py-2 rounded-lg font-semibold transition w-full
-                        ${isSearchDisabled ? 'bg-indigo-400 dark:bg-indigo-600 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700 text-white'}`}
+                        ${isSearchDisabled ? 'text-white bg-indigo-600 dark:bg-indigo-600 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700 text-white'}`}
           >
             {loading ? 'Mencari...' : 'Search'}
           </button>

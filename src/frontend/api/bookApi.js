@@ -109,16 +109,32 @@ export const searchBooksByTitle = async (query) => {
 };
 
 // ----------------------------------------------------
-// FUNGSI PENCARIAN COVER (Dibiarkan)
+// FUNGSI PENCARIAN COVER (Mengirimkan file ke backend)
 // ----------------------------------------------------
 export const searchBooksByCover = async (imageFile) => {
-  // ... (Logika fetch cover)
-  return new Promise(resolve => {
-    setTimeout(() => {
-      console.log(`Pencarian berdasarkan Cover: ${imageFile.name}`);
-      resolve(simulatedBooks.slice(0, 2)); 
-    }, 1000); 
-  });
+  const formData = new FormData();
+  formData.append('cover_image', imageFile);
+
+  // ⚠️ GANTI URL INI dengan endpoint Python Anda yang menerima file dan menyimpannya
+  try {
+    const response = await fetch('/api/query_cover/search', { // <-- Contoh endpoint
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    // Asumsi: Backend Python Anda akan mengembalikan JSON hasil pencarian
+    const data = await response.json(); 
+    return data; // Data ini akan menjadi 'results' di Home.jsx
+    
+  } catch (error) {
+    console.error("API Call Gagal:", error);
+    // Jika API gagal, kembalikan hasil simulasi untuk mencegah crash front end sementara
+    return simulatedBooks.slice(0, 2); 
+  }
 };
 
 // ----------------------------------------------------
