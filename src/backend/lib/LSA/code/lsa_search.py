@@ -4,7 +4,7 @@ from typing import List, Tuple
 import numpy as np
 
 # Import fungsi dari folder LSA
-from lib.LSA.code.preprocessing import (
+from src.backend.lib.LSA.code.preprocessing import (
     tokenize,
     normalize_tokens,
     stem_tokens,
@@ -14,11 +14,12 @@ from lib.LSA.code.preprocessing import (
 # PATH
 SCRIPT_DIR = Path(__file__).resolve().parent
 LSA_DIR = SCRIPT_DIR.parent
-CSV_DIR = LSA_DIR / "csv"
+PAR_DIR = LSA_DIR.parent
+CSV_DIR = PAR_DIR / "document"
 
 TFIDF_PATH        = CSV_DIR / "tfidf_matrix.npz"
-LSA_FACTORS_PATH  = CSV_DIR / "lsa_svd_k100.npz"
-DOC_EMB_PATH      = CSV_DIR / "lsa_embeddings.npz"
+LSA_FACTORS_PATH  = CSV_DIR / "lsa_svd.npz"
+DOC_EMB_PATH      = CSV_DIR / "lsa.npz"
 
 # PREPROCESS QUERY
 def preprocess_query(text: str) -> List[str]:
