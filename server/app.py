@@ -1,106 +1,195 @@
-# server/app.py
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory, abort
 from flask_cors import CORS
+from pathlib import Path
+import json
 import os
-import time
-import json # Diperlukan untuk membaca file JSON
+import uuid
 
-app = Flask(__name__)
-# Mengaktifkan CORS untuk frontend
-CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}}) 
+# === Import PCA & LSA ===
+from lib.PCA.query_pca import process_query
+from lib.LSA.code.lsa_search import (
+    load_doc_embeddings,
+    compute_query_embedding,
+    search_similar_documents
+)
 
-# --- KONSTANTA LOKASI FILE DATA ---
-DATA_FILE_PATH = os.path.join(os.path.dirname(__file__), 'data', 'mapper.json')
-BOOKS_PER_PAGE = 10 # Konstanta untuk pagination
+# =====================================================================
+# PATH SETUP
+# =====================================================================
 
-# =========================================================
-# FUNGSI UNTUK MEMUAT DATA BUKU DARI FILE JSON
-# =========================================================
-def load_book_data():
-    """Memuat data buku dari file mapper.json."""
-    try:
-        with open(DATA_FILE_PATH, 'r', encoding='utf-8') as f:
-            # Asumsi: mapper.json berisi list objek buku
-            book_data = json.load(f)
-            return book_data
-    except FileNotFoundError:
-        print(f"ERROR: File data tidak ditemukan di {DATA_FILE_PATH}")
-        return [] # Kembalikan list kosong jika file tidak ditemukan
-    except json.JSONDecodeError:
-        print(f"ERROR: Format JSON di {DATA_FILE_PATH} tidak valid.")
-        return []
+SERVER_DIR = Path(__file__).resolve().parent
+PROJECT_DIR = SERVER_DIR.parent
+CLIENT_DIR = PROJECT_DIR / "client"
 
-# Memuat data sekali saat aplikasi dimulai (opsional, untuk caching)
-book_list = load_book_data()
-print(f"Berhasil memuat {len(book_list)} buku dari mapper.json.")
+DATA_DIR = SERVER_DIR / "data"
+COVER_DIR = DATA_DIR / "covers"
+TXT_DIR = DATA_DIR / "txt"
+QUERY_DIR = DATA_DIR / "query"
+MODEL_DIR = SERVER_DIR / "model" / "pca_model_test"
 
+MAPPER_PATH = DATA_DIR / "mapper.json"
 
-# =========================================================
-# 1. ENDPOINT PENCARIAN FILE (POST) - Cover
-# =========================================================
-@app.route('/api/query_cover', methods=['POST'])
-def query_cover():
-    print("Menerima permintaan POST untuk Query Cover...")
-    
-    if 'cover_image' not in request.files:
-        return jsonify({"error": "No cover_image part in the request"}), 400
+# =====================================================================
+# LOAD BOOK DATA
+# =====================================================================
 
-    file = request.files['cover_image']
-    
-    if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
+with open(MAPPER_PATH, "r", encoding="utf-8") as f:
+    mapper = json.load(f)
 
-    if file:
-        filename = f"{int(time.time())}_{file.filename}"
-        save_path = os.path.join('query_cover', filename)
-        file.save(save_path)
-        print(f"File disimpan di: {save_path}")
-        
-        # ⚠️ LAKUKAN ALGORITMA PENCARIAN DI SINI ⚠️
-        # Anda akan menggunakan book_list yang dimuat oleh load_book_data()
-        
-        # --- MENGEMBALIKAN DATA DARI ALGORITMA ---
-        # Untuk contoh, kita kembalikan beberapa buku dari mapper
-        all_books = load_book_data()
-        
-        if not all_books:
-            return jsonify({"books": [], "totalPages": 0}), 200
+ids = list(mapper.keys())
+titles = [mapper[i]["title"] for i in ids]
 
-        # Hanya ambil 2 buku pertama sebagai hasil simulasi pencarian
-        return jsonify({
-            "books": all_books[:2],
-            "totalPages": 1
+# Load LSA embeddings
+D_norm, doc_paths = load_doc_embeddings()
+
+app = Flask(__name__, static_folder=str(CLIENT_DIR), static_url_path="")
+CORS(app)
+
+# =====================================================================
+# STATIC ROUTES
+# =====================================================================
+
+@app.route("/")
+def index():
+    return send_from_directory(str(CLIENT_DIR), "index.html")
+
+@app.route("/<path:filename>")
+def client_files(filename):
+    path = CLIENT_DIR / filename
+    if path.exists():
+        return send_from_directory(str(CLIENT_DIR), filename)
+    abort(404)
+
+@app.route("/covers/<filename>")
+def serve_cover(filename):
+    return send_from_directory(str(COVER_DIR), filename)
+
+# =====================================================================
+# TITLE SEARCH
+# =====================================================================
+
+def substring_search(titles, query):
+    q = query.lower()
+    return [i for i, t in enumerate(titles) if q in t.lower()]
+
+@app.route("/api/search", methods=["POST"])
+def search_title():
+    data = request.get_json(force=True)
+    q = data.get("query", "").strip()
+
+    if q == "":
+        return jsonify({"error": "Query is empty"}), 400
+
+    idxs = substring_search(titles, q)
+
+    results = []
+    for i in idxs:
+        bid = ids[i]
+        results.append({
+            "id": bid,
+            "title": titles[i],
+            "cover": mapper[bid]["cover"],
+            "txt": mapper[bid]["txt"]
         })
 
-# ... (Endpoint query_content dan lainnya)
+    return jsonify({"query": q, "count": len(results), "results": results})
 
-# =========================================================
-# 3. ENDPOINT DATA DAN PAGINATION (GET) - Menggunakan data asli
-# =========================================================
-@app.route('/api/books', methods=['GET'])
-def get_books():
-    all_books = load_book_data()
-    total_books = len(all_books)
-    
-    if not all_books:
-        return jsonify({"books": [], "totalPages": 0}), 200
+# =====================================================================
+# IMAGE SEARCH (PCA)
+# =====================================================================
 
-    page = request.args.get('page', 1, type=int)
-    limit = request.args.get('limit', BOOKS_PER_PAGE, type=int)
-    
-    # Logika Pagination
-    start_index = (page - 1) * limit
-    end_index = start_index + limit
-    books_on_page = all_books[start_index:end_index]
-    
-    total_pages = (total_books + limit - 1) // limit # Pembulatan ke atas
-    
+@app.route("/api/search/image", methods=["POST"])
+def search_image():
+    if "file" not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+
+    file = request.files["file"]
+
+    if file.filename == "":
+        return jsonify({"error": "Empty file name"}), 400
+
+    # Save uploaded image temporarily
+    ext = file.filename.split(".")[-1].lower()
+    if ext not in ["jpg", "jpeg", "png"]:
+        return jsonify({"error": "Only JPG/PNG allowed"}), 400
+
+    tmp_name = f"{uuid.uuid4()}.{ext}"
+    tmp_path = QUERY_DIR / tmp_name
+    file.save(tmp_path)
+
+    # Run PCA search
+    results = process_query(str(tmp_path), str(MODEL_DIR), top_k=10)
+
+    # Map PCA result idx → book_id
+    image_files = sorted(os.listdir(COVER_DIR))
+    book_ids = [fname.split('.')[0] for fname in image_files]
+
+    final_results = []
+    for idx, dist in results:
+        bid = book_ids[idx]
+        final_results.append({
+            "id": bid,
+            "title": mapper[bid]["title"],
+            "cover": mapper[bid]["cover"],
+            "txt": mapper[bid]["txt"],
+            "distance": float(dist)
+        })
+
     return jsonify({
-        "books": books_on_page,
-        "totalPages": total_pages
+        "count": len(final_results),
+        "results": final_results
     })
 
 
-if __name__ == '__main__':
-    print("Flask Backend berjalan di http://localhost:5000")
-    app.run(debug=True, port=5000)
+# =====================================================================
+# TEXT SEARCH (LSA)
+# =====================================================================
+
+@app.route("/api/search/text", methods=["POST"])
+def search_text():
+    if "file" not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+
+    file = request.files["file"]
+
+    if not file.filename.endswith(".txt"):
+        return jsonify({"error": "Only .txt allowed"}), 400
+
+    text = file.read().decode("utf-8", errors="ignore")
+
+    if not text.strip():
+        return jsonify({"error": "Empty text file"}), 400
+
+    # Convert text → embedding
+    dq_norm = compute_query_embedding(text)
+
+    # Cosine similarity search
+    results = search_similar_documents(
+        dq_norm=dq_norm,
+        D_norm=D_norm,
+        doc_paths=doc_paths,
+        top_k=10,
+        remove_self=False,
+        self_index=None
+    )
+
+    final_results = []
+    for idx, score, path in results:
+        book_id = Path(path).stem
+        final_results.append({
+            "id": book_id,
+            "title": mapper[book_id]["title"],
+            "cover": mapper[book_id]["cover"],
+            "txt": mapper[book_id]["txt"],
+            "similarity": float(score)
+        })
+
+    return jsonify({
+        "count": len(final_results),
+        "results": final_results
+    })
+
+# =====================================================================
+
+if __name__ == "__main__":
+    app.run(port=5000, debug=True)

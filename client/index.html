@@ -1,14 +1,40 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Perpustakaan ITB</title>
-  </head>
-  <body>
-    <div id="root"></div> 
-    
-    <script type="module" src="/src/frontend/main.jsx"></script>
-  </body>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Book Search</title>
+
+    <style>
+        body { font-family: Arial; margin: 40px; }
+        input { padding: 8px; }
+        button { padding: 8px 14px; margin-left: 5px; }
+        .result { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #ccc; }
+        .cover { width: 60px; height: 90px; object-fit: cover; border: 1px solid #999; }
+        mark { background: yellow; }
+    </style>
+</head>
+
+<body>
+
+<h2>BOOK SEARCH SYSTEM</h2>
+
+<h3>Search By Title</h3>
+<input id="q" placeholder="Enter title..." />
+<button id="btnSearchTitle">Search Title</button>
+
+<h3>Search By Image</h3>
+<input type="file" id="fileImage" accept="image/*" />
+<button id="btnSearchImage">Search by Image</button>
+
+<h3>Search By Text</h3>
+<input type="file" id="fileText" accept=".txt" />
+<button id="btnSearchText">Search by Text</button>
+
+<hr>
+<p id="status"></p>
+
+<div id="results"></div>
+
+<script src="app.js"></script>
+</body>
 </html>
