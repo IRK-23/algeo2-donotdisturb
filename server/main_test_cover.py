@@ -19,18 +19,17 @@ if __name__ == "__main__":
     QUERY_PATH3 = os.path.join(QUERY_DIR, "tc3.jpg")
 
 
-    if os.path.exists(MODEL_DIR):
-        print("Folder model PCA sudah ada", MODEL_DIR)
+    # if os.path.exists(MODEL_DIR):
+    #     print("Folder model PCA sudah ada", MODEL_DIR)
 
-    else:
-        print("=== STARTING PCA FULL PIPELINE ===")
-
-        print("\n[1] PREPROCESSING PCA (Membuat X_norm, mean, M)")
-        PCA.create_pca_model1()
-        print("\n[2] PREPROCESSING SVD (Membuat U, Sigma, V)")
-        SVD.create_svd_model1(MODEL_DIR, k=100)   
-        print("\n[3] PREPROCESSING dataset (Membuat C_dataset)")
-        precompute_dataset_coefficients(MODEL_DIR)
+    # else:
+    print("=== STARTING PCA FULL PIPELINE ===")
+    print("\n[1] PREPROCESSING PCA (Membuat X_norm, mean, M)")
+    PCA.create_pca_model1()
+    print("\n[2] PREPROCESSING SVD (Membuat U, Sigma, V)")
+    SVD.create_svd_model1(MODEL_DIR, k=100)   
+    print("\n[3] PREPROCESSING dataset (Membuat C_dataset)")
+    precompute_dataset_coefficients(MODEL_DIR)
 
 
     print("\nPROCESSING QUERY")

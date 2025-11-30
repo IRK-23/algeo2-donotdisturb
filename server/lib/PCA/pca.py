@@ -12,7 +12,7 @@ class PCA:
     @staticmethod
     def create_pca_model1():
         ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-        DATA_DIR = os.path.join(ROOT_DIR, "server", "data", "covers")
+        DATA_DIR = os.path.join(ROOT_DIR, "data", "covers")
 
         print("MEMULAI PCA MODELLING")
 
@@ -67,7 +67,7 @@ class PCA:
         # =====================================================
         # 5. Simpan hasil
         # =====================================================
-        model_dir = os.path.join(ROOT_DIR, "src/backend/model/pca_model_test")
+        model_dir = os.path.join(ROOT_DIR, "model/pca_model_test")
         if not os.path.exists(model_dir):
             os.makedirs(model_dir)
 
