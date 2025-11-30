@@ -1,0 +1,13 @@
+{
+    "k": 100,
+    "original_metadata": {
+        "k": 100,
+        "original_metadata": {
+            "n_samples": 523,
+            "image_width": 300,
+            "image_height": 200,
+            "training_date": "2025-11-24 (last update)",
+            "description": "PCA preprocessing (M = X_norm^T X_norm, safe PCA)"
+        }
+    }
+}
