@@ -1,20 +1,19 @@
 import os
 import numpy as np
 from PIL import Image
-from .pca1 import image_to_matrix, convert_to_grayscale, matrix_to_column_vector, normalization
+from .pca import PCA
 
 
 # ============================================================
 # Helper: convert query image -> grayscale -> 200x300 -> vector
 # ============================================================
-
 def load_and_preprocess_query(img_path, mean_vec, model_svd_dir):
     img = Image.open(img_path)
-    rgb = image_to_matrix(img)
-    grayscale = convert_to_grayscale(rgb)
+    rgb = PCA.image_to_matrix(img)
+    grayscale = PCA.convert_to_grayscale(rgb)
 
     # 2. Jadikan vektor kolom (60000, 1)
-    vector = matrix_to_column_vector(grayscale).reshape(-1, 1)  # (60000, 1)
+    vector = PCA.matrix_to_column_vector(grayscale).reshape(-1, 1)  # (60000, 1)
 
     # 3. Normalisasi (x' = x - mean)
     vnorm = vector - mean_vec  # dua2nya kolom (60000, 1)

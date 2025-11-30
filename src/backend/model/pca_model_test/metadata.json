@@ -4,7 +4,7 @@
         "n_samples": 523,
         "image_width": 300,
         "image_height": 200,
-        "training_date": "2025-11-24",
-        "description": "PCA preprocessing up to step 2.1.4 (M = X_norm^T X_norm, safe PCA)"
+        "training_date": "2025-11-24 (last update)",
+        "description": "PCA preprocessing (M = X_norm^T X_norm, safe PCA)"
     }
 }

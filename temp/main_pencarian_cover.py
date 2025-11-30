@@ -1,4 +1,4 @@
-from backend import pca_modelling
+from temp import pca_modelling
 from backend.module import pca
 from backend.model import olah_query
 import numpy as np # Library untuk operasi matriks sederhana 
