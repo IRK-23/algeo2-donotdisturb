@@ -7,13 +7,13 @@ import os
 import json
 import pickle
 
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+DATA_DIR = os.path.join(ROOT_DIR, "data", "covers")
+
 # Fungsi membuat PCA model
 class PCA:
     @staticmethod
     def create_pca_model1():
-        ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-        DATA_DIR = os.path.join(ROOT_DIR, "data", "covers")
-
         print("MEMULAI PCA MODELLING")
 
         # =====================================================

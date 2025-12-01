@@ -2,39 +2,71 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Book Search</title>
-
+    <title>Library Search</title>
     <style>
-        body { font-family: Arial; margin: 40px; }
-        input { padding: 8px; }
-        button { padding: 8px 14px; margin-left: 5px; }
-        .result { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #ccc; }
-        .cover { width: 60px; height: 90px; object-fit: cover; border: 1px solid #999; }
-        mark { background: yellow; }
+        .item {
+            display: inline-block;
+            width: 140px;
+            margin: 10px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        #pagination button {
+            margin: 5px;
+        }
     </style>
 </head>
 
 <body>
 
-<h2>BOOK SEARCH SYSTEM</h2>
+<h2>Book Library</h2>
 
-<h3>Search By Title</h3>
-<input id="q" placeholder="Enter title..." />
-<button id="btnSearchTitle">Search Title</button>
+<!-- ===================== -->
+<!-- SEARCH INPUT AREA -->
+<!-- ===================== -->
+<input id="q" placeholder="Search by title...">
+<button id="btnSearch">Search</button>
 
-<h3>Search By Image</h3>
-<input type="file" id="fileImage" accept="image/*" />
-<button id="btnSearchImage">Search by Image</button>
+<button id="btnImage">Search by Image</button>
+<input type="file" id="imgInput" accept="image/*" hidden>
 
-<h3>Search By Text</h3>
-<input type="file" id="fileText" accept=".txt" />
-<button id="btnSearchText">Search by Text</button>
+<button id="btnText">Search by Text</button>
+<input type="file" id="txtInput" accept=".txt" hidden>
 
-<hr>
+<button id="btnHome">Home</button>
+
 <p id="status"></p>
 
+<!-- RESULTS -->
 <div id="results"></div>
 
+<!-- PAGINATION -->
+<div id="pagination"></div>
+
+<!-- POPUP -->
+<div id="popup" style="
+    display:none;
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:rgba(0,0,0,0.6);
+    padding:40px;
+    overflow:auto;
+">
+    <div id="popupContent" style="
+        background:white;
+        padding:20px;
+        max-width:800px;
+        margin:auto;
+        border-radius:10px;
+    "></div>
+</div>
+
+<!-- Load JS -->
 <script src="app.js"></script>
+
 </body>
 </html>

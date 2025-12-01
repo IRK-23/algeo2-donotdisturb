@@ -38,7 +38,13 @@ TOL = 1e-6
 MAX_ITER = 500  
 
 
-def main():
+def preprocess_txt():
+    if (os.path.exists(TFIDF_OUTPUT) and
+        os.path.exists(LSA_FACTORS_OUTPUT) and
+        os.path.exists(DOC_EMB_OUTPUT)):
+        print("[INFO] File sudah ada di", CSV_DIR)
+        return
+    
     CSV_DIR.mkdir(parents=True, exist_ok=True)
 
     raw_documents, doc_paths = load_raw_documents(DATA_DIR)
@@ -84,4 +90,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    preprocess_txt()
