@@ -1,72 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Library Search</title>
-    <style>
-        .item {
-            display: inline-block;
-            width: 140px;
-            margin: 10px;
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: center;
-            cursor: pointer;
-        }
-
-        #pagination button {
-            margin: 5px;
-        }
-    </style>
-</head>
-
-<body>
-
-<h2>Book Library</h2>
-
-<!-- ===================== -->
-<!-- SEARCH INPUT AREA -->
-<!-- ===================== -->
-<input id="q" placeholder="Search by title...">
-<button id="btnSearch">Search</button>
-
-<button id="btnImage">Search by Image</button>
-<input type="file" id="imgInput" accept="image/*" hidden>
-
-<button id="btnText">Search by Text</button>
-<input type="file" id="txtInput" accept=".txt" hidden>
-
-<button id="btnHome">Home</button>
-
-<p id="status"></p>
-
-<!-- RESULTS -->
-<div id="results"></div>
-
-<!-- PAGINATION -->
-<div id="pagination"></div>
-
-<!-- POPUP -->
-<div id="popup" style="
-    display:none;
-    position:fixed;
-    top:0; left:0;
-    width:100%; height:100%;
-    background:rgba(0,0,0,0.6);
-    padding:40px;
-    overflow:auto;
-">
-    <div id="popupContent" style="
-        background:white;
-        padding:20px;
-        max-width:800px;
-        margin:auto;
-        border-radius:10px;
-    "></div>
-</div>
-
-<!-- Load JS -->
-<script src="app.js"></script>
-
-</body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Perpustakaan ITB</title>
+  </head>
+  <body>
+    <div id="root"></div> 
+    
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
+
