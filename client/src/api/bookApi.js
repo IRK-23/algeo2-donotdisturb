@@ -165,19 +165,140 @@ export const searchBooksByCover = async (file) => {
 // ======================================================
 // 3. SEARCH BY TEXT
 // ======================================================
-export const searchBooksByContent = async (file) => {
-  const form = new FormData();
-  form.append("file", file);
+// export const searchBooksByContent = async (file) => {
+//   const form = new FormData();
+//   form.append("file", file);
 
-  const res = await fetch("http://localhost:5000/api/search/text", {
-    method: "POST",
-    body: form
+//   const res = await fetch("http://localhost:5000/api/search/text", {
+//     method: "POST",
+//     body: form
+//   });
+
+//   if (!res.ok) throw new Error("Search by text failed");
+
+//   const data = await res.json();
+//   return data.results; // backend returns {count, results}
+// };
+
+// ======================================================
+// 3. SEARCH BY TEXT - PERBAIKAN
+// ======================================================
+// export const searchBooksByContent = async (file) => {
+//   try {
+//     console.log("[DEBUG] Uploading file:", file.name, "Size:", file.size);
+    
+//     const form = new FormData();
+//     form.append("file", file);
+
+//     const res = await fetch("http://localhost:5000/api/search/text", {
+//       method: "POST",
+//       body: form
+//     });
+
+//     console.log("[DEBUG] Response status:", res.status);
+
+//     if (!res.ok) {
+//       const errorData = await res.json().catch(() => ({}));
+//       console.error("[ERROR] Search failed:", errorData);
+//       throw new Error(errorData.error || "Search by text failed");
+//     }
+
+//     const data = await res.json();
+//     console.log("[DEBUG] Search results:", data);
+    
+//     return data.results || [];
+    
+//   } catch (error) {
+//     console.error("[ERROR] searchBooksByContent:", error);
+//     throw error;
+//   }
+// };
+// ======================================================
+// 3. SEARCH BY TEXT - PERBAIKAN FINAL
+// ======================================================
+export const searchBooksByContent = async (file) => {
+  console.log("[DEBUG] ===== SEARCH BY CONTENT START =====");
+  console.log("[DEBUG] File:", {
+    name: file.name,
+    size: file.size,
+    type: file.type,
+    lastModified: new Date(file.lastModified).toISOString()
   });
 
-  if (!res.ok) throw new Error("Search by text failed");
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
 
-  const data = await res.json();
-  return data.results; // backend returns {count, results}
+    console.log("[DEBUG] Sending POST request to:", `${BASE_URL}/search/text`);
+
+    const response = await fetch(`${BASE_URL}/search/text`, {
+      method: "POST",
+      body: formData,
+      // Jangan set Content-Type, biarkan browser yang set untuk FormData
+    });
+
+    console.log("[DEBUG] Response received:");
+    console.log("[DEBUG] - Status:", response.status);
+    console.log("[DEBUG] - StatusText:", response.statusText);
+    console.log("[DEBUG] - OK:", response.ok);
+    console.log("[DEBUG] - Headers:", Object.fromEntries(response.headers.entries()));
+
+    // Baca response sebagai text dulu
+    const responseText = await response.text();
+    console.log("[DEBUG] Response body (raw):", responseText);
+
+    // Cek apakah response OK
+    if (!response.ok) {
+      let errorMsg = `HTTP ${response.status}: ${response.statusText}`;
+      
+      try {
+        const errorData = JSON.parse(responseText);
+        errorMsg = errorData.error || errorMsg;
+        console.error("[ERROR] Backend error data:", errorData);
+      } catch (parseErr) {
+        console.error("[ERROR] Could not parse error response as JSON");
+        console.error("[ERROR] Raw response:", responseText);
+      }
+      
+      throw new Error(errorMsg);
+    }
+
+    // Parse response JSON
+    let data;
+    try {
+      data = JSON.parse(responseText);
+      console.log("[DEBUG] Parsed response data:", data);
+    } catch (parseErr) {
+      console.error("[ERROR] Failed to parse success response as JSON");
+      console.error("[ERROR] Raw response:", responseText);
+      throw new Error("Invalid JSON response from server");
+    }
+
+    // Validasi structure response
+    if (!data || typeof data !== 'object') {
+      console.error("[ERROR] Response is not an object:", data);
+      throw new Error("Invalid response structure");
+    }
+
+    if (!Array.isArray(data.results)) {
+      console.error("[ERROR] Response.results is not an array:", data.results);
+      return [];
+    }
+
+    console.log("[DEBUG] ✓ Search successful!");
+    console.log("[DEBUG] ✓ Found", data.results.length, "books");
+    console.log("[DEBUG] ===== SEARCH BY CONTENT END =====");
+
+    return data.results;
+
+  } catch (error) {
+    console.error("[ERROR] ===== SEARCH BY CONTENT FAILED =====");
+    console.error("[ERROR] Error type:", error.name);
+    console.error("[ERROR] Error message:", error.message);
+    console.error("[ERROR] Error stack:", error.stack);
+    console.error("[ERROR] ==========================================");
+    throw error;
+  }
 };
 
 // ======================================================

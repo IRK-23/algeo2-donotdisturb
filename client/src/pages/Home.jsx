@@ -11,51 +11,43 @@ import Pagination from '../components/common/Pagination';
 import SearchByCoverModal from '../components/modals/SearchByCover';
 import SearchByContentModal from '../components/modals/SearchByContent';
 
-
 import { fetchAllBooks, searchBooksByTitle } from '../api/bookApi';
 
 const Home = () => {
-  // --- STATE MANAGEMENT ---
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [searchTerm, setSearchTerm] = useState(''); // untuk SearchBar
+  const [searchTerm, setSearchTerm] = useState('');
   const [isCoverModalOpen, setIsCoverModalOpen] = useState(false);
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
   const [activeQuery, setActiveQuery] = useState({ type: 'all', value: '' });
   const navigate = useNavigate();
 
-  // --- HELPERS / HANDLERS ---
-
   const loadBooks = async (page = 1, query = activeQuery) => {
-      setLoading(true);
-      let results = [];
-      let total = 1;
+    setLoading(true);
+    let results = [];
+    let total = 1;
 
-      try {
-          if (query.type === "title") {
-              // Pencarian berdasarkan judul
-              results = await searchBooksByTitle(query.value);
-              total = 1; 
-          } else {
-              // Default: pagination
-              const data = await fetchAllBooks(page);
-
-              results = data.books ?? [];
-              total = data.total ?? 1; // ✔️ Perbaikan: gunakan total, bukan totalPages
-          }
-      } catch (err) {
-          console.error("Error loading books:", err);
+    try {
+      if (query.type === "title") {
+        results = await searchBooksByTitle(query.value);
+        total = 1; 
+      } else {
+        const data = await fetchAllBooks(page);
+        results = data.books ?? [];
+        total = data.total ?? 1;
       }
+    } catch (err) {
+      console.error("Error loading books:", err);
+    }
 
-      setBooks(results);
-      setTotalPages(total);
-      setCurrentPage(page);
-      setLoading(false);
+    setBooks(results);
+    setTotalPages(total);
+    setCurrentPage(page);
+    setLoading(false);
   };
 
-  // Handler untuk SearchBar (pencarian judul)
   const handleTitleSearch = (e) => {
     if (e && e.preventDefault) e.preventDefault();
     const query = searchTerm.trim();
@@ -69,28 +61,28 @@ const Home = () => {
     }
   };
 
-  // Handler yang dipanggil oleh modal (cover/content) saat selesai mencari
-  const handleModalSearch = (results) => {
-    // results diharapkan array buku
+  // ✅ Handler baru untuk redirect ke halaman pencarian cover
+  const handleCoverSearch = (results) => {
     if (!results || results.length === 0) {
-      setBooks([]);
-      setTotalPages(1);
-      setActiveQuery({ type: "modal", value: "" });
+      alert("Tidak ada buku yang cocok ditemukan");
       return;
     }
-
-    // ⬇️ Buku pertama hasil pencarian
-    const bestMatch = results[0];
-
-    // ⬇️ Redirect langsung ke BookDetail
-    navigate(`/book/${bestMatch.id}`);
-    // setBooks(results ?? []);
-    // setTotalPages(1);
-    // setCurrentPage(1);
-    // setActiveQuery({ type: 'modal', value: '' }); // tandai agar pagination tersembunyi
+    
+    // Navigate ke halaman SearchByCoverPage dengan state results
+    navigate('/search/cover', { state: { results } });
   };
 
-  // Panggil saat pertama kali render
+  // ✅ Handler baru untuk redirect ke halaman pencarian content
+  const handleContentSearch = (results) => {
+    if (!results || results.length === 0) {
+      alert("Tidak ada buku yang cocok ditemukan");
+      return;
+    }
+    
+    // Navigate ke halaman SearchByContentPage dengan state results
+    navigate('/search/content', { state: { results } });
+  };
+
   useEffect(() => {
     loadBooks(1, { type: 'all', value: '' });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -98,31 +90,24 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-      {/* Header */}
       <Header />
 
-      {/* Konten Utama */}
       <main className="max-w-7xl mx-auto p-6">
-        {/* Search bar utama */}
         <SearchBar
           searchTerm={searchTerm}
           onSearchTermChange={setSearchTerm}
           onSearchSubmit={handleTitleSearch}
         />
 
-        {/* Opsi pencarian spesifik (trigger modal) */}
         <SearchOptions
           onCoverClick={() => setIsCoverModalOpen(true)}
           onContentClick={() => setIsContentModalOpen(true)}
         />
 
-        {/* Judul daftar (bergantung pada activeQuery) */}
         <div className="mt-8">
           <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
             {activeQuery.type === 'title'
               ? `Hasil Pencarian: "${activeQuery.value}"`
-              : activeQuery.type === 'modal'
-              ? 'Relevant Books'
               : 'Book Collections'}
           </h2>
 
@@ -135,7 +120,6 @@ const Home = () => {
           )}
         </div>
 
-        {/* Pagination hanya tampil saat melihat semua koleksi (bukan saat search by title/modal) */}
         {activeQuery.type === 'all' && totalPages > 1 && (
           <div className="mt-8">
             <Pagination
@@ -147,25 +131,25 @@ const Home = () => {
         )}
       </main>
 
-      {/* Modal: Search by Cover */}
+      {/* ✅ Update handler untuk modal */}
       <SearchByCoverModal
         isOpen={isCoverModalOpen}
         onClose={() => setIsCoverModalOpen(false)}
         onSearchComplete={(results) => {
-          handleModalSearch(results);
+          handleCoverSearch(results);
           setIsCoverModalOpen(false);
         }}
       />
 
-      {/* Modal: Search by Content */}
       <SearchByContentModal
         isOpen={isContentModalOpen}
         onClose={() => setIsContentModalOpen(false)}
         onSearchComplete={(results) => {
-          handleModalSearch(results);
+          handleContentSearch(results);
           setIsContentModalOpen(false);
         }}
       />
+
 
       <Footer />
     </div>
