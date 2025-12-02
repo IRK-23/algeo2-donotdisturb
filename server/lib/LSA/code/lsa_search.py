@@ -2,6 +2,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import List, Tuple
 import numpy as np
+import os
+from lib.LSA.main_lsa import preprocess_txt as build_lsa_model
 
 # Import fungsi dari folder LSA
 from lib.LSA.code.preprocessing import (
@@ -95,10 +97,14 @@ def compute_query_embedding(query_text: str) -> np.ndarray:
 
 # LOAD DOCUMENT EMBEDDINGS
 def load_doc_embeddings():
+    # Jika embedding belum ada → bangun dulu modelnya
+    if not os.path.exists(DOC_EMB_PATH):
+        print("[INFO] Embeddings not found. Generating LSA model...")
+        build_lsa_model()    # Panggil main_lsa.main()
+
+    # Setelah generate / jika sudah ada → load
     data = np.load(DOC_EMB_PATH, allow_pickle=True)
-    D_norm = data["D_norm"]               
-    doc_paths = data["doc_paths"].tolist()
-    return D_norm, doc_paths
+    return data["D_norm"], data["doc_paths"]
 
 # SEARCH SIMILAR DOCUMENTS
 # Menghitung cosine similarity antara embedding query dan semua embedding dokumen, lalu mengembalikan top_k dokumen paling mirip
