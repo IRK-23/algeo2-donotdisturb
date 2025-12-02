@@ -12,8 +12,8 @@ const SearchOptions = ({ onCoverClick, onContentClick }) => {
                    bg-indigo-600 text-white rounded-full shadow-lg 
                    hover:bg-indigo-700 hover:shadow-xl transition transform hover:scale-105"
       >
-        <span className="text-sm font-semibold">Search By Book Cover</span>
-        <span className="text-sm opacity-80">(Upload Gambar)</span>
+        <span className="text-sm font-semibold">Search by Book Cover</span>
+        <span className="text-sm opacity-80">(Upload Image)</span>
       </button>
 
       {/* Tombol 2: Search By Book Content */}
@@ -23,8 +23,8 @@ const SearchOptions = ({ onCoverClick, onContentClick }) => {
                    bg-indigo-600 text-white rounded-full shadow-lg 
                    hover:bg-indigo-700 hover:shadow-xl transition transform hover:scale-105"
       >
-        <span className="text-sm font-semibold">Search By Book Content</span>
-        <span className="text-sm opacity-80">(Upload Teks)</span>
+        <span className="text-sm font-semibold">Search by Book Content</span>
+        <span className="text-sm opacity-80">(Upload Text)</span>
       </button>
     </div>
   );

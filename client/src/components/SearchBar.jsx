@@ -10,7 +10,7 @@ const SearchBar = ({ searchTerm, onSearchTermChange, onSearchSubmit }) => {
         {/* Input */}
         <input
           type="text"
-          placeholder="Cari Judul Buku..."
+          placeholder="Search by book title..."
           value={searchTerm}
           onChange={(e) => onSearchTermChange(e.target.value)}
           className="pl-6 pr-3 py-3 w-full bg-transparent focus:outline-none text-gray-900 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400"

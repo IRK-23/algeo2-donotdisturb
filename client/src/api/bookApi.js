@@ -147,24 +147,19 @@ export const searchBooksByTitle = async (query) => {
 // ======================================================
 // 2. SEARCH BY IMAGE
 // ======================================================
-export const searchBooksByCover = async (imageFile) => {
+export const searchBooksByCover = async (file) => {
   const form = new FormData();
-  form.append("file", imageFile);
+  form.append("file", file);
 
-  try {
-    const res = await fetch(`${BASE_URL}/search/image`, {
-      method: "POST",
-      body: form
-    });
+  const res = await fetch("http://localhost:5000/api/search/image", {
+    method: "POST",
+    body: form
+  });
 
-    if (!res.ok) throw new Error(res.status);
+  if (!res.ok) throw new Error("Search by image failed");
 
-    const data = await res.json();
-    return data.results ?? [];
-  } catch (err) {
-    console.error("Cover search error:", err);
-    return [];
-  }
+  const data = await res.json();
+  return data.results;
 };
 
 // ======================================================
@@ -174,20 +169,15 @@ export const searchBooksByContent = async (file) => {
   const form = new FormData();
   form.append("file", file);
 
-  try {
-    const res = await fetch(`${BASE_URL}/search/text`, {
-      method: "POST",
-      body: form
-    });
+  const res = await fetch("http://localhost:5000/api/search/text", {
+    method: "POST",
+    body: form
+  });
 
-    if (!res.ok) throw new Error(res.status);
+  if (!res.ok) throw new Error("Search by text failed");
 
-    const data = await res.json();
-    return data.results ?? [];
-  } catch (err) {
-    console.error("Text search error:", err);
-    return [];
-  }
+  const data = await res.json();
+  return data.results; // backend returns {count, results}
 };
 
 // ======================================================

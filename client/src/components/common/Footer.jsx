@@ -20,15 +20,15 @@ const Footer = () => {
         {/* Informasi Mata Kuliah dan Institusi */}
         <div className="mt-4 pt-4 border-t border-gray-300 dark:border-gray-700">
           <p className="text-md text-gray-800 dark:text-gray-300 font-medium">
-            Aljabar dan Geometri
+            Tugas Besar IF2123 Aljabar Linier dan Geometri
           </p>
           <ul className="text-sm text-gray-600 dark:text-gray-500">
-            <li>Lab IRK</li>
-            <li>Teknik Informatika</li>
+            <li>Laboratorium Ilmu dan Rekayasa Komputasi</li>
+            <li>Program Studi Teknik Informatika</li>
+            <li>Sekolah Teknik Elektro dan Informatika</li>
             <li>Institut Teknologi Bandung</li>
           </ul>
         </div>
-        
       </div>
     </footer>
   );
