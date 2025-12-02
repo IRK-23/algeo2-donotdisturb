@@ -50,6 +50,48 @@ D_norm, doc_paths = load_doc_embeddings()
 app = Flask(__name__, static_folder=str(CLIENT_DIR), static_url_path="")
 CORS(app)
 
+
+
+RECS_CACHE = {} 
+RECOMMENDATION_COUNT = 9 # Sesuai dengan top_k=5
+DETAIL_TEXT_LIMIT = 1000
+
+# =====================================================================
+# Fungsi untuk Pre-komputasi (Ditambahkan)
+# =====================================================================
+def precompute_recommendations():
+    """Menghitung dan menyimpan rekomendasi untuk semua buku saat server dimulai."""
+    print("Pre-komputasi rekomendasi LSA untuk semua buku...")
+    
+    global RECS_CACHE
+    
+    all_doc_stems = [Path(p).stem for p in doc_paths]
+
+    for idx, bid in enumerate(all_doc_stems):
+        # Ambil embedding dokumen saat ini
+        dq = D_norm[idx] 
+        
+        # Cari dokumen serupa
+        recs = search_similar_documents(
+            dq, D_norm, doc_paths,
+            top_k=RECOMMENDATION_COUNT + 1, # Cari 1 lebih banyak karena akan menghapus diri sendiri
+            remove_self=True, 
+            self_index=idx
+        )
+        
+        final = []
+        for rec_idx, score, path in recs:
+            rec_bid = Path(path).stem
+            final.append({
+                "id": rec_bid,
+                "title": mapper[rec_bid]["title"],
+                "cover": f"/covers/{Path(mapper[rec_bid]['cover']).name}",
+                "similarity": float(score)
+            })
+        RECS_CACHE[bid] = final
+    print(f"Pre-komputasi selesai. Total {len(RECS_CACHE)} buku di-cache.")
+
+
 # =====================================================================
 # STATIC FILE ROUTES
 # =====================================================================
@@ -184,53 +226,79 @@ def list_books():
     return jsonify({"page": page, "total_pages": total_pages, "results": results})
 
 # =====================================================================
-# BOOK DETAIL
+# BOOK DETAIL (Mengirim RINGKASAN 1000 karakter)
 # =====================================================================
 @app.route("/api/book/<book_id>")
 def book_detail(book_id):
     if book_id not in mapper:
         return jsonify({"error": "Book not found"}), 404
+    
     txt_path = TXT_DIR / Path(mapper[book_id]["txt"]).name
+    
+    content_summary = "(Teks konten tidak tersedia)"
+    has_text = False
+    
     try:
-        content = txt_path.read_text(encoding="utf-8", errors="ignore")
+        # BACA HANYA 1000 KARAKTER AWAL
+        with open(txt_path, "r", encoding="utf-8", errors="ignore") as f:
+            content_summary = f.read(DETAIL_TEXT_LIMIT) 
+            # Jika bisa dibaca dan ada konten, anggap memiliki teks penuh
+            if content_summary.strip():
+                has_text = True
+            
     except:
-        content = "(Cannot load text)"
+        pass 
+        
     return jsonify({
         "id": book_id,
         "title": mapper[book_id]["title"],
         "cover": f"/covers/{Path(mapper[book_id]['cover']).name}",
-        "text": content
+        "text_summary": content_summary, # Key baru untuk ringkasan
+        "has_full_text": has_text # Flag untuk memberitahu ada teks penuh
     })
 
 # =====================================================================
-# BOOK RECOMMENDATION (LSA)
+# NEW: GET FULL TEXT (Mengirim SEMUA teks)
+# =====================================================================
+@app.route("/api/book/<book_id>/fulltext")
+def book_full_text(book_id):
+    """Mengembalikan teks penuh buku (dipanggil oleh modal/pop-up)."""
+    if book_id not in mapper:
+        return jsonify({"error": "Book not found"}), 404
+    
+    txt_path = TXT_DIR / Path(mapper[book_id]["txt"]).name
+    
+    try:
+        # BACA SELURUH ISI FILE TEKS
+        content_full = txt_path.read_text(encoding="utf-8", errors="ignore")
+    except:
+        content_full = "(Teks konten tidak tersedia)"
+        
+    # Kirim seluruh teks di key 'text'
+    return jsonify({"text": content_full})
+
+# =====================================================================
+# BOOK RECOMMENDATION (LOOKUP dari Cache)
 # =====================================================================
 @app.route("/api/recommend/<book_id>")
 def recommend(book_id):
+    """Mengembalikan rekomendasi dengan mencari di cache."""
     if book_id not in mapper:
         return jsonify({"error": "Book not found"}), 404
-    try:
-        idx = [Path(p).stem for p in doc_paths].index(book_id)
-    except ValueError:
-        return jsonify({"error": "Embedding not found"}), 500
-    dq = D_norm[idx]
-    recs = search_similar_documents(
-        dq, D_norm, doc_paths,
-        top_k=5, remove_self=True, self_index=idx
-    )
-    final = []
-    for idx, score, path in recs:
-        bid = Path(path).stem
-        final.append({
-            "id": bid,
-            "title": mapper[bid]["title"],
-            "cover": f"/covers/{Path(mapper[bid]['cover']).name}",
-            "similarity": float(score)
-        })
-    return jsonify({"count": len(final), "results": final})
+    
+    # LANGSUNG LOOKUP dari cache, JAUH LEBIH CEPAT!
+    results = RECS_CACHE.get(book_id, [])
+    
+    return jsonify({"count": len(results), "results": results})
 
 # =====================================================================
 if __name__ == "__main__":
     preprocess_txt()
     preprocess_cover()
+
+    try:
+        precompute_recommendations()
+    except Exception as e:
+        print(f"Gagal melakukan pre-komputasi rekomendasi: {e}")
+
     app.run(port=5000, debug=True)
