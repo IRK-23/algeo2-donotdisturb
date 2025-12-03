@@ -1,42 +1,43 @@
-# client/Dockerfile
+# ---- build stage (install deps) ----
+FROM python:3.10-slim AS builder
 
-# --- STAGE 1: BUILD APLIKASI (Menggunakan Node.js) ---
-# Menggunakan image Node Alpine untuk ukuran yang kecil
-FROM node:20-alpine AS builder
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Mengatur environment
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential gcc libffi-dev git curl \
+ && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
-ENV PATH /app/node_modules/.bin:$PATH
 
-# Menyalin package.json dan package-lock.json untuk caching dependency
-# Ini adalah langkah yang efisien: jika dependencies tidak berubah, Docker tidak akan mengulang instalasi
-COPY package.json ./
-COPY package-lock.json ./
+COPY requirements.txt .
 
-# Instal semua dependencies (dependencies dan devDependencies)
-RUN npm install
+RUN python -m pip install --upgrade pip setuptools wheel \
+ && pip install --no-cache-dir -r requirements.txt
 
-# Menyalin seluruh kode sumber (termasuk folder src/frontend)
+# ---- runtime stage ----
+FROM python:3.10-slim
+
+ENV PYTHONUNBUFFERED=1
+ENV PORT=5000
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# copy python libs
+COPY --from=builder /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
+
+# copy bin (contains gunicorn)
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# copy app
 COPY . .
 
-# Menjalankan production build (Vite akan menghasilkan folder 'dist/')
-RUN npm run build
+RUN mkdir -p /app/data/query
 
+EXPOSE 5000
 
-# --- STAGE 2: SERVE APLIKASI (Menggunakan Nginx) ---
-# Menggunakan Nginx image yang sangat ringan untuk menyajikan file statis
-FROM nginx:alpine
-
-# Menyalin konfigurasi Nginx kustom (jika ada, untuk routing atau cache)
-# Jika tidak ada, Nginx akan menyajikan dari folder /usr/share/nginx/html
-# COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Menyalin hasil build statis (folder dist/) dari stage 'builder'
-# Folder 'dist' adalah output default dari perintah 'npm run build' di Vite
-COPY --from=builder /app/dist /usr/share/nginx/html
-
-# Port default Nginx yang akan di-expose (Port 80 di dalam container)
-EXPOSE 80
-
-# Command default untuk menjalankan Nginx
-CMD ["nginx", "-g", "daemon off;"]
+ENV GUNICORN_WORKERS=3
+CMD ["sh", "-c", "gunicorn -w ${GUNICORN_WORKERS} -k gthread -b 0.0.0.0:${PORT} --access-logfile - --error-logfile - app:app"]
