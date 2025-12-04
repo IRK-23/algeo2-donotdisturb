@@ -72,22 +72,22 @@ Matriks kesamaan LSA antar dokumen dihitung **sekali saja** saat server startup 
 
 Aplikasi ini dapat dijalankan secara lokal (manual) atau menggunakan Docker untuk simulasi lingkungan production.
 
-## Prasyarat Sistem
+### Prasyarat Sistem
 
-### **Backend (Python)**
+**Backend (Python)**
 - Python 3.10+
 - Pip
 - Git
 
-### **Frontend (Node.js)**
+**Frontend (Node.js)**
 - Node.js 18+
 - npm
 
-## 1. Menjalankan Program Secara Manual (Development)
+### 1. Menjalankan Program Secara Manual (Development)
 
 Aplikasi dijalankan menggunakan dua terminal terpisah di mode development (cepat dan hot-reloading).
 
-### **Terminal 1: Backend (Flask)**
+**Terminal 1: Backend (Flask)**
 
 ```bash
 cd server
@@ -96,7 +96,7 @@ python app.py
 ```
 (Server akan berjalan di http://localhost:5000)
 
-### **Terminal 2: Frontend (React + Vite)**
+**Terminal 2: Frontend (React + Vite)**
 
 ```bash
 cd client
@@ -110,9 +110,10 @@ Akses Browser: Buka http://localhost:5174 (atau port yang ditunjukkan oleh Termi
 ### 2. Menjalankan Program dengan Docker Compose (Production Simulation)
 Metode ini paling menyerupai lingkungan production karena menjalankan frontend dan backend dalam kontainer terpisah yang terhubung.
 
-# Dari root folder program (tempat docker-compose.yml berada)
+#### Dari root folder program (tempat docker-compose.yml berada)
+```bash
 docker compose -f docker-compose.yml up --build
-
+```
 (Proses ini akan membangun image dan menjalankan proses pre-komputasi LSA/PCA.)
 
 Akses Browser: Buka http://localhost
