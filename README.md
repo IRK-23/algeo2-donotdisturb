@@ -2,7 +2,7 @@
 
 # Tugas Besar 2 Aljabar Linier dan Geometri
 
-# Anggota Kelompok "Do Not Disturb"
+## Kelompok "Do Not Disturb"
 1. Agatha Tatianingseto (13524008) 
 2. Keisha Rizka Syofyani (1352407)
 3. Reynard Anderson Wijaya (13524111)
