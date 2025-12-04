@@ -110,13 +110,14 @@ Akses Browser: Buka http://localhost:5174 (atau port yang ditunjukkan oleh Termi
 ### 2. Menjalankan Program dengan Docker Compose (Production Simulation)
 Metode ini paling menyerupai lingkungan production karena menjalankan frontend dan backend dalam kontainer terpisah yang terhubung.
 
-#### Dari root folder program (tempat docker-compose.yml berada)
+- Install Dockerfile desktop
+- Run dockerfile dari root folder program (tempat docker-compose.yml berada)
 ```bash
 docker compose -f docker-compose.yml up --build
 ```
 (Proses ini akan membangun image dan menjalankan proses pre-komputasi LSA/PCA.)
 
-Akses Browser: Buka http://localhost
+- Akses Browser: Buka http://localhost
 
 ## Fitur Sistem
 
@@ -125,4 +126,4 @@ Akses Browser: Buka http://localhost
 | **1. Pencarian Gambar** | Gambar Sampul         | PCA + Nearest Neighbors                     | Ranking buku serupa berdasarkan visual     |
 | **2. Pencarian Teks**   | File `.txt`           | LSA + Cosine Similarity                     | Ranking buku serupa berdasarkan konten     |
 | **3. Pencarian Judul**  | Substring Judul       | Pencarian String Langsung                   | Daftar buku yang cocok                     |
-| **4. Rekomendasi Buku** | ID Buku               | Lookup dari Matriks Kesamaan LSA (Cached)   | Daftar buku rekomendasi                    |
+| **4. Rekomendasi Buku** | ID Buku               | Lookup dari Matriks Kesamaan LSA dan PCA    | Daftar buku rekomendasi                    |
