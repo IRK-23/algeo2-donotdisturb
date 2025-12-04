@@ -1,0 +1,26 @@
+services:
+  # Backend Service
+  - type: web
+    name: lsa-backend
+    env: docker
+    dockerfilePath: ./server/Dockerfile
+    dockerContext: ./server
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: GUNICORN_WORKERS
+        value: 2
+    healthCheckPath: /api/mapper
+    
+  # Frontend Service  
+  - type: web
+    name: lsa-frontend
+    env: docker
+    dockerfilePath: ./client/Dockerfile
+    dockerContext: ./client
+    envVars:
+      - key: REACT_APP_API_URL
+        fromService:
+          name: lsa-backend
+          type: web
+          property: host
