@@ -8,6 +8,7 @@
 3. Reynard Anderson Wijaya (13524111)
 
 ## Struktur Folder Proyek
+```bash
 root
 ├───client/             # Kode sumber Frontend (React JS)
 │   └───src/            # Kode React JS
@@ -24,6 +25,7 @@ root
 ├───docker-compose.yml  # Konfigurasi orkestrasi multi-kontainer Docker
 ├───README.md
 └───LICENSE
+```
 
 
 ## Tujuan Setiap Direktori
@@ -91,7 +93,7 @@ Aplikasi dijalankan menggunakan dua terminal terpisah di mode development (cepat
 cd server
 pip install -r requirements.txt
 python app.py
-
+```
 (Server akan berjalan di http://localhost:5000)
 
 ### **Terminal 2: Frontend (React + Vite)**
@@ -100,7 +102,7 @@ python app.py
 cd client
 npm install
 npm run dev
-
+```
 (Aplikasi akan berjalan di http://localhost:5174 atau port lainnya)
 
 Akses Browser: Buka http://localhost:5174 (atau port yang ditunjukkan oleh Terminal 2).
