@@ -1,2 +1,14 @@
 data/*
 !data/.gitkeep
+/client/dist
+.env
+
+# model PCA
+/server/model/pca_model_test/X_norm.npy
+
+# model trained LSA
+/server/lib/document
+
+
+# folder temp
+/temp
