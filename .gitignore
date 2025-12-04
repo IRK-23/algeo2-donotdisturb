@@ -1,2 +1,12 @@
+# File di root proyek yang harus diabaikan
+.env 
+# Folder build/cache yang dihasilkan otomatis
+client/dist/
+__pycache__/
+*.pyc
+venv/
+.pytest_cache/
+
+# Data (abaikan semua isinya kecuali .gitkeep)
 data/*
 !data/.gitkeep

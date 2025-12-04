@@ -22,7 +22,7 @@ from main_test_cover import preprocess_cover
 
 SERVER_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = SERVER_DIR.parent
-CLIENT_DIR = PROJECT_DIR / "client"
+CLIENT_DIR = PROJECT_DIR / "client" / "dist"
 
 DATA_DIR = SERVER_DIR / "data"
 COVER_DIR = DATA_DIR / "covers"
@@ -47,7 +47,11 @@ ids = list(mapper.keys())
 # Load LSA embeddings
 D_norm, doc_paths = load_doc_embeddings()
 
-app = Flask(__name__, static_folder=str(CLIENT_DIR), static_url_path="")
+app = Flask(__name__, 
+            static_folder=str(CLIENT_DIR), 
+            static_url_path="/",
+            template_folder=str(CLIENT_DIR)
+            )
 CORS(app)
 
 
@@ -302,3 +306,4 @@ if __name__ == "__main__":
         print(f"Gagal melakukan pre-komputasi rekomendasi: {e}")
 
     app.run(port=5000, debug=True)
+

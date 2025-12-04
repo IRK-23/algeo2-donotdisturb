@@ -1,35 +1,17 @@
-# Node dependencies
 node_modules
 npm-debug.log
-yarn-error.log
-
-# Build output
-dist
-build
-
-# Environment
-.env
-.env.*
-
-# Git
 .git
 .gitignore
-
-# IDE / editor
-.vscode
-.idea
-
-# OS
+README.md
+.env
+.env.local
+.env.development
+.env.production
+dist
+build
 .DS_Store
 Thumbs.db
-
-# Docker
-Dockerfile
-docker-compose.yml
-
-# Logs
+.vscode
+.idea
+coverage
 *.log
-
-# Misc
-*.swp
-*.swo
