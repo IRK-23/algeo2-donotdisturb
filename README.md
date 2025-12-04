@@ -117,9 +117,9 @@ Akses Browser: Buka http://localhost
 
 ## Fitur Sistem
 
-| **Fitur**               | **Input**            | **Metode**                           | **Output**                                          |
-|-------------------------|-----------------------|---------------------------------------|------------------------------------------------------|
-| **1. Pencarian Gambar** | Gambar Sampul         | PCA + Nearest Neighbors               | Ranking buku serupa berdasarkan visual              |
-| **2. Pencarian Teks**   | File `.txt`           | LSA + Cosine Similarity               | Ranking buku serupa berdasarkan konten              |
-| **3. Pencarian Judul**  | Substring Judul       | Pencarian String Langsung             | Daftar buku yang cocok                               |
-| **4. Rekomendasi Buku** | ID Buku               | Lookup dari Matriks Kesamaan LSA (Cached) | Daftar buku rekomendasi                         |
+| **Fitur**               | **Input**             | **Metode**                                  | **Output**                                 |
+|-------------------------|-----------------------|---------------------------------------------|--------------------------------------------|
+| **1. Pencarian Gambar** | Gambar Sampul         | PCA + Nearest Neighbors                     | Ranking buku serupa berdasarkan visual     |
+| **2. Pencarian Teks**   | File `.txt`           | LSA + Cosine Similarity                     | Ranking buku serupa berdasarkan konten     |
+| **3. Pencarian Judul**  | Substring Judul       | Pencarian String Langsung                   | Daftar buku yang cocok                     |
+| **4. Rekomendasi Buku** | ID Buku               | Lookup dari Matriks Kesamaan LSA (Cached)   | Daftar buku rekomendasi                    |
