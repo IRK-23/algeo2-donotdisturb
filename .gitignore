@@ -12,3 +12,6 @@ data/*
 
 # folder temp
 /temp
+
+# folder node_modules
+/node_modules
