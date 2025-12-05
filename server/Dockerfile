@@ -1,4 +1,4 @@
-# client/Dockerfile
+q# client/Dockerfile
 
 # --- STAGE 1: BUILD APLIKASI (Menggunakan Node.js) ---
 # Menggunakan image Node Alpine untuk ukuran yang kecil
