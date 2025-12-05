@@ -1,46 +1,33 @@
-# docker-compose.yml
-
 version: '3.8'
 
 services:
-  # =========================================================================
-  # 1. FRONTEND SERVICE (REACT/VITE)
-  # =========================================================================
+  # ============================ FRONTEND ============================
   frontend:
     container_name: library_frontend
-    build: 
-      context: ./client # Lokasi Dockerfile
+    build:
+      context: ./client
       dockerfile: Dockerfile
-    # Nama host yang bisa diakses oleh backend (digunakan untuk CORS)
-    hostname: frontend 
-    # Port mapping: host_port:container_port
+    hostname: frontend
     ports:
-      - "80:80" 
+      - "80:80"        # Ngakses app: http://localhost/
     restart: always
     depends_on:
-      - backend # Pastikan backend berjalan sebelum frontend
-    # Catatan: Gunakan volume hanya jika Anda perlu live development di Docker
+      - backend
 
-  # =========================================================================
-  # 2. BACKEND SERVICE (PYTHON)
-  # =========================================================================
+  # ============================ BACKEND =============================
   backend:
     container_name: library_backend
-    build: 
-      context: ./server # ⚠️ Anda perlu membuat folder 'server' dan Dockerfile-nya
+    build:
+      context: ./server
       dockerfile: Dockerfile
-    # Nama host yang bisa diakses oleh frontend (digunakan untuk API calls)
-    hostname: backend 
+    hostname: backend
     ports:
-      - "5000:5000" # Mapping port 5000 untuk server Python Anda
-    # Mapping volume (opsional, untuk development atau log)
+      - "5000:5000"    # Ngakses API: http://localhost:5000
     volumes:
-      - ./server:/app # Mapping kode dari host ke container
+      - ./server:/app  # optional: supaya backend auto refresh saat edit
     restart: always
 
-# =========================================================================
-# 3. JARINGAN
-# =========================================================================
+# ============================ NETWORK ==============================
 networks:
   default:
     name: library_network

@@ -1,6 +1,7 @@
 
 
-const BASE_URL = "http://localhost:5000/api";
+const BASE_URL = import.meta.env.VITE_API_URL;
+
 
 // ======================================================
 // 1. SEARCH TITLE
@@ -30,7 +31,7 @@ export const searchBooksByCover = async (file) => {
   const form = new FormData();
   form.append("file", file);
 
-  const res = await fetch("http://localhost:5000/api/search/image", {
+  const res = await fetch(`${BASE_URL}/search/image`, {
     method: "POST",
     body: form
   });
