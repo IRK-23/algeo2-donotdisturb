@@ -61,13 +61,10 @@ const Header = () => {
                          peer-checked:after:translate-x-full 
                          peer-checked:after:border-white"
             >
-              {/* Tambahkan ikon di dalam kenop (opsional, jika ingin lebih detail) */}
               <span className={`absolute top-1/2 -translate-y-1/2 text-lg transition-all duration-300 ${isDarkMode ? 'left-1 text-gray-800' : 'right-1 text-white'}`}>
-                {/* 🌙 berada di kiri saat Light Mode (unchecked) */}
-                {/* 🌞 berada di kanan saat Dark Mode (checked) */}
               </span>
             </div>
-            {/* Label (Opsional) */}
+            {/* Label */}
             <span className="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">
               {isDarkMode ? 'Dark' : 'Light'}
             </span>
